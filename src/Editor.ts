@@ -60,6 +60,7 @@ export function mountEditor(container: HTMLElement, host: ScopedHost<CardDocumen
     const colorLabel = element('label', '色');
     const color = element('select');
     color.name = 'color';
+    color.setAttribute('aria-label', '色');
     const labels = {
       blue: 'ブルー',
       green: 'グリーン',

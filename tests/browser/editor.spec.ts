@@ -9,11 +9,14 @@ test('protects unapplied modal input when the page is reloaded', async ({ page }
   await page.getByRole('button', { name: '「小さな図書館」を編集' }).click();
   await page.getByRole('dialog').getByLabel('タイトル', { exact: true }).fill('まだ適用していない入力');
   const warning = page.waitForEvent('dialog');
-  const navigation = page.reload().catch(() => undefined);
+  // A cancelled reload never reaches a new load event. Trigger the real browser
+  // reload without waiting for navigation that this test deliberately cancels.
+  await page.evaluate(() => {
+    setTimeout(() => location.reload(), 0);
+  });
   const dialog = await warning;
   expect(dialog.type()).toBe('beforeunload');
   await dialog.dismiss();
-  await navigation;
   await expect(page.getByRole('dialog').getByLabel('タイトル', { exact: true })).toHaveValue('まだ適用していない入力');
   await page.getByRole('button', { name: 'キャンセル', exact: true }).click();
   await expect(page.getByRole('listitem').first().getByRole('heading')).toHaveText('小さな図書館');
