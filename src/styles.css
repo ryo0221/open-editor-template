@@ -1,0 +1,223 @@
+.ep-card-editor {
+  color: #263043;
+  font:
+    14px/1.6 system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
+  container-type: inline-size;
+}
+.ep-card-editor * {
+  box-sizing: border-box;
+}
+.ep-card-editor button {
+  font: inherit;
+  cursor: pointer;
+  border: 1px solid #dde2eb;
+  background: white;
+  color: #344056;
+  border-radius: 8px;
+  padding: 7px 12px;
+}
+.ep-card-editor button:hover:not(:disabled) {
+  background: #f1f5fb;
+  border-color: #a9b8cc;
+}
+.ep-card-editor button:focus-visible,
+.ep-card-editor input:focus-visible,
+.ep-card-editor textarea:focus-visible,
+.ep-card-editor select:focus-visible {
+  outline: 3px solid #adc9fa;
+  outline-offset: 2px;
+}
+.ep-card-editor button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.ep-card-editor .ep-card-primary {
+  background: #355edb;
+  color: white;
+  border-color: #355edb;
+}
+.ep-card-editor .ep-card-primary:hover:not(:disabled) {
+  background: #284ab6;
+  color: white;
+}
+.ep-card-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.ep-card-count {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #788499;
+}
+.ep-card-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr));
+  gap: 18px;
+  align-items: start;
+}
+.ep-card {
+  --accent: #507cd6;
+  --tint: #f5f8ff;
+  border: 1px solid #e1e6f0;
+  border-top: 3px solid var(--accent);
+  border-radius: 12px;
+  background: linear-gradient(var(--tint), #fff 110px);
+  padding: 18px;
+  min-width: 0;
+  box-shadow: 0 4px 18px #283b5e05;
+}
+.ep-card[data-color='green'] {
+  --accent: #399583;
+  --tint: #f2faf7;
+}
+.ep-card[data-color='amber'] {
+  --accent: #ca9740;
+  --tint: #fffbf0;
+}
+.ep-card[data-color='rose'] {
+  --accent: #cc7289;
+  --tint: #fff6f8;
+}
+.ep-card[data-color='purple'] {
+  --accent: #9972d6;
+  --tint: #f9f5ff;
+}
+.ep-card[data-color='slate'] {
+  --accent: #778397;
+  --tint: #f5f6f8;
+}
+.ep-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.ep-card-number {
+  font: 600 12px/1 monospace;
+  color: var(--accent);
+}
+.ep-card-editor .ep-card-select {
+  border: 0;
+  background: transparent;
+  font-size: 11px;
+  color: #788499;
+  padding: 3px 5px;
+}
+.ep-card-editor .ep-card-select[aria-pressed='true'] {
+  background: #e9efff;
+  color: #2c54c6;
+}
+.ep-card h3 {
+  font-size: 17px;
+  line-height: 1.5;
+  margin: 18px 0 10px;
+  overflow-wrap: anywhere;
+}
+.ep-card-description {
+  font-size: 13px;
+  line-height: 1.8;
+  color: #768197;
+  min-height: 68px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.ep-card-actions {
+  display: flex;
+  gap: 5px;
+  border-top: 1px solid #edf0f5;
+  padding-top: 14px;
+  margin-top: 20px;
+}
+.ep-card-actions button {
+  font-size: 12px;
+  padding: 5px 10px;
+}
+.ep-card-editor .ep-card-remove {
+  margin-left: auto;
+  color: #98656c;
+  border-color: transparent;
+}
+.ep-card-status {
+  font-size: 12px;
+  min-height: 20px;
+  color: #65738a;
+  margin: 16px 0 0;
+}
+.ep-card-empty {
+  color: #778499;
+  padding: 50px 20px;
+  text-align: center;
+  border: 1px dashed #ccd5e3;
+  border-radius: 12px;
+}
+.ep-card-dialog {
+  border: 1px solid #e0e5ee;
+  border-radius: 16px;
+  padding: 26px;
+  width: min(440px, calc(100vw - 32px));
+  max-height: 90vh;
+  overflow: auto;
+  color: #263043;
+  box-shadow: 0 20px 80px #15284a30;
+}
+.ep-card-dialog::backdrop {
+  background: #1c2c4c55;
+  backdrop-filter: blur(3px);
+}
+.ep-card-dialog h3 {
+  font-size: 19px;
+  margin: 0 0 22px;
+}
+.ep-card-dialog label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 15px;
+}
+.ep-card-dialog input,
+.ep-card-dialog textarea,
+.ep-card-dialog select {
+  display: block;
+  font:
+    400 14px/1.6 system-ui,
+    sans-serif;
+  padding: 10px 12px;
+  width: 100%;
+  border: 1px solid #d6deea;
+  border-radius: 8px;
+  margin-top: 6px;
+  background: #fff;
+  color: #263043;
+}
+.ep-card-dialog textarea {
+  resize: vertical;
+}
+.ep-card-error {
+  font-size: 12px;
+  color: #b3484d;
+  min-height: 20px;
+}
+.ep-card-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 20px;
+}
+@container (max-width:440px) {
+  .ep-card-list {
+    grid-template-columns: 1fr;
+  }
+  .ep-card-toolbar {
+    align-items: flex-start;
+  }
+  .ep-card-dialog {
+    padding: 20px;
+  }
+}

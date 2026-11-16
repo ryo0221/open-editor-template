@@ -1,0 +1,29 @@
+{
+  "name": "@editor-platform/extension-contract",
+  "version": "0.0.0-draft.1",
+  "private": true,
+  "type": "module",
+  "description": "Pinned public Open Editor Platform source subset for the editor template",
+  "license": "AGPL-3.0-only",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ryo0221/open-editor-platform.git",
+    "directory": "packages/extension-contract"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "files": [
+    "src",
+    "LICENSE",
+    "NOTICE.md"
+  ],
+  "dependencies": {
+    "@editor-platform/editor-core": "file:../editor-core"
+  },
+  "openEditorTemplateVendor": {
+    "sourceCommit": "0ee0c711027b73e0112a544783793a3563808dd7",
+    "packagingModified": "2026-11-16",
+    "originalManifest": "../../upstream-manifests/extension-contract.json"
+  }
+}

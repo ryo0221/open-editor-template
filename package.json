@@ -1,0 +1,37 @@
+{
+  "name": "open-editor-template",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A small, independently runnable Editor Platform extension starter.",
+  "license": "AGPL-3.0-only",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "check": "node scripts/vendor-sdk.mjs --check && tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "build:extension": "node scripts/build-extension.mjs",
+    "build": "npm run check && vite build",
+    "preview": "vite preview",
+    "verify:package": "node scripts/verify-package.mjs"
+  },
+  "dependencies": {
+    "@editor-platform/artifact-core": "file:vendor/ep/packages/artifact-core",
+    "@editor-platform/editor-core": "file:vendor/ep/packages/editor-core",
+    "@editor-platform/editor-host": "file:vendor/ep/packages/editor-host",
+    "@editor-platform/extension-contract": "file:vendor/ep/packages/extension-contract",
+    "@editor-platform/extension-runtime": "file:vendor/ep/packages/extension-runtime"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1",
+    "@types/node": "22.19.1",
+    "esbuild": "0.25.12",
+    "jsdom": "26.1.0",
+    "typescript": "5.9.2",
+    "vite": "6.4.5",
+    "vitest": "3.2.4"
+  }
+}
