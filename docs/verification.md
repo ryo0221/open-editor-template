@@ -19,11 +19,17 @@ DOMテストは、実ビルドを検証・読み込み・登録した後、**配
 
 Hostでは、保存失敗、未保存時の再読み込み拒否、native JSON検証、変更後の古い提案の拒否、変更してUndoした後の古い提案の拒否、読み取り専用から復帰しても古い提案を復活させないことを確認しています。
 
-## 実ブラウザで残る確認
+## ローカル環境のブラウザ制約
 
 Playwrightのブラウザ起動は、この作業環境のOSソケット制限で拒否されました。追加実行権限の申請も環境の承認設定により拒否されました。クラウドブラウザからのローカル開発サーバーへの接続も成立していません。
 
-したがって、**ネイティブdialog、フォーカス、実ブラウザの保存・ダウンロード・離脱警告、デスクトップ/モバイルのレイアウトを検証済みとはしません。** DOMテストはこれらの代替証明ではありません。
+このローカル検証だけでは、ネイティブdialog、フォーカス、実ブラウザの保存・ダウンロード・離脱警告、デスクトップ/モバイルのレイアウトを検証したことにはなりません。DOMテストはこれらの代替証明ではありません。
+
+## CIでの実ブラウザ検証
+
+GitHub Actionsは、Playwrightが対応するUbuntu 24.04でChromiumを導入し、`tests/browser/editor.spec.ts`の5シナリオをデスクトップ幅1280px・モバイル幅390pxの2条件で実行します。編集・並べ替え・Undo/Redo、保存と再読み込み、操作提案と権限変更、JSONの書き出しと読み込み、未確定入力の離脱警告を確認する10テストです。画面幅を超える横スクロールも自動検査します。画面全体の目視確認やSafari/Firefoxでの検証は含みません。
+
+各commitの結果は[GitHub Actions](https://github.com/ryo0221/open-editor-template/actions)で確認してください。初回のrunは`ubuntu-latest`がUbuntu 26.04を選び、Playwrightのブラウザ依存導入で停止したため、対応するOSを明示しています。
 
 `tests/browser/editor.spec.ts`とGitHub Actionsの設定を同梱しています。ブラウザを実行できる環境で次を実行してください。
 
@@ -32,7 +38,7 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
-既存のChromiumを使う場合は、`PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH`でその実行ファイルを指定できます。CIではPlaywrightが配布するChromiumを使います。GitHub Actionsの実行結果は、リポジトリへの配置後に確認してください。
+既存のChromiumを使う場合は、`PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH`でその実行ファイルを指定できます。CIではPlaywrightが配布するChromiumを使います。
 
 ## 対象版
 
