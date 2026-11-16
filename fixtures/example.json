@@ -4,20 +4,20 @@
   "cards": [
     {
       "id": "card-library",
-      "title": "小さな図書館",
-      "description": "近所の人がおすすめの本を持ち寄る場所。まずは棚ひとつから始めたい。",
+      "title": "仮説・実験Editor",
+      "description": "3つのUI案を比較し仮説と観察結果を残す",
       "color": "blue"
     },
     {
       "id": "card-concert",
-      "title": "週末の音楽会",
-      "description": "好きな曲を一曲ずつ演奏する。聞くだけの人も、初めて弾く人も参加できる。",
+      "title": "ゲームルールEditor",
+      "description": "2人・10枚のカードゲームでルールを確かめる",
       "color": "rose"
     },
     {
       "id": "card-garden",
-      "title": "屋上の庭",
-      "description": "季節ごとの変化を楽しむ小さな庭。育てたい植物と必要な手入れを比べてみる。",
+      "title": "組立・修理Editor",
+      "description": "10部品の小さなケースで組立手順を示す",
       "color": "green"
     }
   ]

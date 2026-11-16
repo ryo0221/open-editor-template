@@ -10,7 +10,7 @@ import {
   verifyExtensionPackage,
   type LoadedExtension,
 } from '@editor-platform/extension-runtime/package';
-import { createDocument, type CardDocument } from '../src/model';
+import { createDocument, type Card, type CardDocument } from '../src/model';
 import { updateCard } from '../src/commands';
 
 // DOM/event coverage, not a substitute for PaoBub's real-browser integration.
@@ -68,13 +68,13 @@ afterAll(() => {
   vi.unstubAllGlobals();
 });
 
-function setup() {
+function setup(cards: Card[] = [
+  { id: 'first', title: '最初', description: '説明を維持', color: 'blue' },
+  { id: 'second', title: '次', description: '', color: 'green' },
+]) {
   vi.useFakeTimers();
   const registration = installVerifiedExtension(new ExtensionRegistry(), loaded);
-  const content = createDocument([
-    { id: 'first', title: '最初', description: '説明を維持', color: 'blue' },
-    { id: 'second', title: '次', description: '', color: 'green' },
-  ]);
+  const content = createDocument(cards);
   const session = new EditorSession(content);
   const handle = registration.open({
     artifactKind: content.artifactKind,
@@ -92,7 +92,7 @@ function setup() {
   document.body.append(container);
   handle.mount(container);
   cleanup = () => { handle.close(); registration.uninstall(); };
-  const titles = () => [...container.querySelectorAll('[role="listitem"] h3')].map((node) => node.textContent);
+  const titles = () => [...container.querySelectorAll('tbody tr[data-card-id] h3')].map((node) => node.textContent);
   return { session, handle, container, titles };
 }
 
@@ -103,6 +103,72 @@ function button(container: ParentNode, name: string) {
   if (!found) throw new Error(`Missing button: ${name}`);
   return found;
 }
+
+function filter(container: ParentNode, value: string) {
+  const input = container.querySelector<HTMLInputElement>(
+    'input[aria-label="候補を名前や説明で絞り込む"]',
+  )!;
+  input.value = value;
+  input.dispatchEvent(new Event('input', { bubbles: true }));
+  return input;
+}
+
+it('compares candidates in a native table and filters names and descriptions without editing content or history', () => {
+  const { session, container, titles } = setup([
+    { id: 'canvas', title: 'Canvas Editor', description: '形を描く', color: 'blue' },
+    { id: 'comparison', title: '比較表', description: 'Markdown の候補を比較 🌱', color: 'green' },
+  ]);
+  const original = session.content;
+  const revision = session.revision;
+  const table = container.querySelector('table[aria-label="Editorアイデア比較表"]')!;
+  expect(table).not.toBeNull();
+  expect([...table.querySelectorAll('thead th')].map((node) => node.textContent))
+    .toEqual(['候補名', '説明', '色', '操作']);
+  expect(table.querySelectorAll('tbody th[scope="row"]')).toHaveLength(2);
+
+  filter(container, 'eDiToR');
+  expect(titles()).toEqual(['Canvas Editor']);
+  filter(container, 'markdown');
+  expect(titles()).toEqual(['比較表']);
+  filter(container, '🌱');
+  expect(titles()).toEqual(['比較表']);
+  filter(container, '一致する候補はない');
+  expect(table.querySelectorAll('tbody tr[data-card-id]')).toHaveLength(0);
+  filter(container, '');
+  expect(titles()).toEqual(['Canvas Editor', '比較表']);
+
+  expect(session.content).toEqual(original);
+  expect(session.revision).toEqual(revision);
+  expect(session.canUndo).toBe(false);
+  expect(session.canRedo).toBe(false);
+});
+
+it('retains search focus, selection and query while Host changes and Undo/Redo update filtered rows', () => {
+  const { session, handle, container, titles } = setup();
+  const input = filter(container, '説明');
+  input.focus();
+  input.setSelectionRange(0, 1);
+  expect(titles()).toEqual(['最初']);
+
+  const unchangedInput = () => {
+    expect(container.querySelector('input[aria-label="候補を名前や説明で絞り込む"]')).toBe(input);
+    expect(document.activeElement).toBe(input);
+    expect(input.value).toBe('説明');
+    expect([input.selectionStart, input.selectionEnd]).toEqual([0, 1]);
+  };
+  session.execute(updateCard('second', { description: '新しい説明' }));
+  vi.advanceTimersByTime(200);
+  expect(titles()).toEqual(['最初', '次']);
+  unchangedInput();
+  handle.api.undo();
+  vi.advanceTimersByTime(200);
+  expect(titles()).toEqual(['最初']);
+  unchangedInput();
+  handle.api.redo();
+  vi.advanceTimersByTime(200);
+  expect(titles()).toEqual(['最初', '次']);
+  unchangedInput();
+});
 
 it('refreshes the mounted bundle after Host Undo/Redo and public operations, and stops on close', () => {
   const { session, handle, container, titles } = setup();

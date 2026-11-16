@@ -1,8 +1,8 @@
-name: Verify editor template
+name: Verify idea comparison Editor
 
 on:
   push:
-    branches: [main]
+    branches: [main, 'dogfood/**']
   pull_request:
   workflow_dispatch:
 
@@ -27,4 +27,13 @@ jobs:
       - run: npm run build
       - run: npm run verify:package
       - run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e
+      - run: npm run test:e2e -- --workers=2 --retries=0 --reporter=list,html
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: idea-comparison-editor-verification
+          path: |
+            playwright-report/
+            test-results/
+            dist/paobub/host-pin.json
+          retention-days: 7

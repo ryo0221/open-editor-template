@@ -109,24 +109,24 @@ const firstCard: Card = { id: 'first', title: '最初のカード', description:
 describe('DOM Surface with the actual EP Host', () => {
   it('adds and edits through modal submission while preserving the stable ID', () => {
     const { host, container } = setup();
-    button(container, '＋ カードを追加').click();
+    button(container, '＋ 候補を追加').click();
     let dialog = container.querySelector('dialog')!;
     expect(dialog.open).toBe(true);
     field(dialog, 'title', '制作メモ 🌱');
     field(dialog, 'description', '人とAIで作る');
     field(dialog, 'color', 'green');
-    button(dialog, 'カードを追加').click();
+    button(dialog, '候補を追加').click();
     expect(container.querySelector('dialog')).toBeNull();
     expect(host.editor.content.cards).toHaveLength(1);
     const id = host.editor.content.cards[0].id;
     expect(host.editor.content.cards[0]).toMatchObject({ title: '制作メモ 🌱', description: '人とAIで作る', color: 'green' });
-    expect(container.querySelector('[role="listitem"] h3')?.textContent).toBe('制作メモ 🌱');
+    expect(container.querySelector('tbody tr[data-card-id] h3')?.textContent).toBe('制作メモ 🌱');
     button(container, '「制作メモ 🌱」を編集').click();
     dialog = container.querySelector('dialog')!;
     field(dialog, 'title', '次のアイデア');
     button(dialog, '変更を適用').click();
     expect(host.editor.content.cards[0]).toMatchObject({ id, title: '次のアイデア' });
-    expect(container.querySelector('[role="listitem"] h3')?.textContent).toBe('次のアイデア');
+    expect(container.querySelector('tbody tr[data-card-id] h3')?.textContent).toBe('次のアイデア');
     expect(host.editor.canUndo).toBe(true);
   });
 
@@ -164,7 +164,7 @@ describe('DOM Surface with the actual EP Host', () => {
 
   it('guards pending modal input and removes that guard on cancel and Surface cleanup', () => {
     const { host, container, unmount } = setup();
-    button(container, '＋ カードを追加').click();
+    button(container, '＋ 候補を追加').click();
     let dialog = container.querySelector('dialog')!;
     expect(unloadPrevented()).toBe(false);
     field(dialog, 'title', '未確定の入力');
@@ -172,7 +172,7 @@ describe('DOM Surface with the actual EP Host', () => {
     button(dialog, 'キャンセル').click();
     expect(unloadPrevented()).toBe(false);
     expect(host.editor.content.cards).toEqual([]);
-    button(container, '＋ カードを追加').click();
+    button(container, '＋ 候補を追加').click();
     dialog = container.querySelector('dialog')!;
     field(dialog, 'description', '破棄する入力');
     expect(unloadPrevented()).toBe(true);

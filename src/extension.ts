@@ -16,8 +16,8 @@ import { operationDeclarations, operations } from './operations';
 /** Change these identities for your Editor. A new view may keep an existing artifactKind. */
 export const manifest: Omit<ExtensionManifest, 'packageHash'> = {
   contractVersion: CONTRACT_VERSION,
-  id: 'example.card-editor',
-  version: '0.2.0',
+  id: 'tokiwa.idea-comparison-editor',
+  version: '0.1.0',
   artifactKind: CARD_ARTIFACT_KIND,
   schemaVersion: CARD_SCHEMA_VERSION,
   capabilities: ['local-edit', 'surface', 'persistence'],

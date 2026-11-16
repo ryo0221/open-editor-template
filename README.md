@@ -1,4 +1,47 @@
-# Open Editor Template
+# Editorアイデア比較Editor（dogfood）
+
+[Open Editor Template](https://github.com/ryo0221/open-editor-template)から作った、Editorの候補を比較する小さなEditorです。既存の`CardDocument`をそのまま使い、**候補名・説明・色・操作の表**と、**名前や説明による絞り込み**を追加しています。
+
+| 項目 | このEditorの設定 |
+| --- | --- |
+| 配布Editor | `tokiwa.idea-comparison-editor@0.1.0` |
+| native形式 | `example.cards`、schema 2 |
+| 初期候補 | 仮説・実験Editor、ゲームルールEditor、組立・修理Editor |
+| 編集経路 | テンプレートのcommands・operationsとHostのUndo/Redo・保存を再利用 |
+
+検索は名前と説明の部分一致で、全角・半角や大文字・小文字をそろえて比較します。検索語は画面の表示状態として扱い、保存する本体やUndo履歴を変更しません。同じSurface内でHostの変更を反映するときも、検索欄と入力中のmodalを保持します。
+
+### 単独で試す
+
+Node.js 24を推奨します。PaoBubを起動せず、このディレクトリだけで開発Hostを動かせます。
+
+```bash
+npm ci
+npm run dev
+```
+
+表示されたURLを開き、検索欄に`仮説`または`10枚`を入力して候補を絞り込みます。各行の「編集」で候補名・説明・色を変え、「変更を適用」後にHostのUndo/Redo・保存・再読込を試せます。単独の開発Hostの保存先はブラウザのIndexedDBです。
+
+### ビルドとPaoBubでの実証範囲
+
+```bash
+npm run check
+npm test
+npm run build:extension
+npm run verify:package
+```
+
+PaoBub向けのpackageは`dist/paobub/package-store/tokiwa.idea-comparison-editor@0.1.0.json`、pinの確認用記録は`dist/paobub/host-pin.json`です。同じ場所にEditor bindingとProject例も生成します。利用側Hostへのpackage配置・信頼するpinの登録は、生成後に運用者が行います。
+
+このdogfoodの対象は、**PaoBubのコードEditorでソース変更を保存し、既存の受け入れgateで実際の検査・ビルドを流し、その生成packageを別Projectから利用する流れ**です。gateでは`npm ci`、型検査、テスト、拡張ビルド、独立package検証を実行します。開発は人の手編集経路を使い、実AIによるコード生成や応答品質は検証対象に含めていません。Hostへの信頼登録も、PaoBub UIだけで自動完了する機能としては扱いません。
+
+この分岐は元テンプレートのnpm metadataを引き継いでいるため、`package.json`とnpmコマンドの表示は`open-editor-template@0.2.0`です。配布Editorの識別情報は`src/extension.ts`から生成される上記の`0.1.0`を使います。
+
+以下の詳しい説明と[既存の検証記録](docs/verification.md)は、元テンプレートの機能・過去の検証を記したものです。記載された`example.card-editor@0.2.0`や過去のCI成功を、この新Editorの実証結果として読み替えないでください。この分岐の検証結果は、対象commitに対するCIとdogfoodの記録で確認します。
+
+---
+
+## Open Editor Template — 元テンプレートの説明
 
 自分のEditorを作るための、小さなEditor Platform拡張テンプレートです。タイトル・説明・色を持つカードEditorを、**表示、編集、Undo/Redo、保存、操作提案、配布用ビルド**まで動かせます。v0.2では、PaoBubで成果物として扱う形式情報付きJSONと、Editor登録・Project作成用の素材を出力します。
 

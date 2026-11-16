@@ -10,21 +10,53 @@ function element<K extends keyof HTMLElementTagNameMap>(tag: K, text?: string, c
   return node;
 }
 
-/** A small DOM Surface. Native content and commands also work without a browser. */
+const colorLabels: Record<Card['color'], string> = {
+  blue: 'ブルー', green: 'グリーン', amber: 'アンバー',
+  rose: 'ローズ', purple: 'パープル', slate: 'スレート',
+};
+const searchable = (value: string) => value.normalize('NFKC').toLocaleLowerCase('ja-JP');
+
+/** A comparison view over the existing card format; filtering never changes native data. */
 export function mountEditor(container: HTMLElement, host: ScopedHost<CardDocument>): () => void {
   const root = element('section', undefined, 'ep-card-editor');
-  root.setAttribute('aria-label', 'カードEditor');
+  root.setAttribute('aria-label', 'Editorアイデア比較Editor');
   const style = element('style', styles);
+  const heading = element('h2', 'Editorアイデア比較', 'ep-idea-heading');
+  const introduction = element('p', '候補を並べて、名前や説明から確かめたいアイデアを見つけます。', 'ep-idea-introduction');
   const status = element('p', '', 'ep-card-status');
   status.setAttribute('role', 'status');
   const toolbar = element('div', undefined, 'ep-card-toolbar');
   const count = element('span', '', 'ep-card-count');
-  const add = element('button', '＋ カードを追加', 'ep-card-primary');
+  count.setAttribute('aria-live', 'polite');
+  const add = element('button', '＋ 候補を追加', 'ep-card-primary');
   add.type = 'button';
-  const list = element('div', undefined, 'ep-card-list');
-  list.setAttribute('role', 'list');
+  const filterLabel = element('label', '候補を絞り込む', 'ep-idea-filter');
+  const search = element('input');
+  search.type = 'search';
+  search.setAttribute('aria-label', '候補を名前や説明で絞り込む');
+  search.placeholder = '候補名・説明で検索';
+  search.autocomplete = 'off';
+  filterLabel.append(search);
+  const scroll = element('div', undefined, 'ep-idea-table-scroll');
+  scroll.tabIndex = 0;
+  scroll.setAttribute('role', 'region');
+  scroll.setAttribute('aria-label', '比較表の表示範囲');
+  const table = element('table', undefined, 'ep-idea-table');
+  table.setAttribute('aria-label', 'Editorアイデア比較表');
+  const tableHead = element('thead');
+  const columns = element('tr');
+  for (const name of ['候補名', '説明', '色', '操作']) {
+    const column = element('th', name);
+    column.scope = 'col';
+    columns.append(column);
+  }
+  tableHead.append(columns);
+  const rows = element('tbody');
+  table.append(tableHead, rows);
+  scroll.append(table);
+  const empty = element('p', '', 'ep-card-empty');
   toolbar.append(count, add);
-  root.append(style, toolbar, list, status);
+  root.append(style, heading, introduction, toolbar, filterLabel, scroll, empty, status);
   container.append(root);
   const dialogCleanups = new Set<() => void>();
   let renderedContent = '';
@@ -44,8 +76,8 @@ export function mountEditor(container: HTMLElement, host: ScopedHost<CardDocumen
   function edit(card?: Card) {
     const dialog = element('dialog', undefined, 'ep-card-dialog');
     const form = element('form');
-    const heading = element('h3', card ? 'カードを編集' : '新しいカード');
-    const titleLabel = element('label', 'タイトル');
+    const heading = element('h3', card ? '候補を編集' : '新しい候補');
+    const titleLabel = element('label', '候補名');
     const title = element('input');
     title.name = 'title';
     title.required = true;
@@ -62,16 +94,8 @@ export function mountEditor(container: HTMLElement, host: ScopedHost<CardDocumen
     const color = element('select');
     color.name = 'color';
     color.setAttribute('aria-label', '色');
-    const labels = {
-      blue: 'ブルー',
-      green: 'グリーン',
-      amber: 'アンバー',
-      rose: 'ローズ',
-      purple: 'パープル',
-      slate: 'スレート',
-    };
     for (const value of CARD_COLORS) {
-      const option = element('option', labels[value]);
+      const option = element('option', colorLabels[value]);
       option.value = value;
       color.append(option);
     }
@@ -82,7 +106,7 @@ export function mountEditor(container: HTMLElement, host: ScopedHost<CardDocumen
     const actions = element('div', undefined, 'ep-card-dialog-actions');
     const cancel = element('button', 'キャンセル');
     cancel.type = 'button';
-    const submit = element('button', card ? '変更を適用' : 'カードを追加', 'ep-card-primary');
+    const submit = element('button', card ? '変更を適用' : '候補を追加', 'ep-card-primary');
     submit.type = 'submit';
     cancel.onclick = () => dialog.close();
     actions.append(cancel, submit);
@@ -122,7 +146,7 @@ export function mountEditor(container: HTMLElement, host: ScopedHost<CardDocumen
             !current || current.title !== card.title ||
             current.description !== card.description || current.color !== card.color
           )
-            throw new Error('このカードは編集中に変更されました。入力を控えてキャンセルし、現在の内容を開き直してください。');
+            throw new Error('この候補は編集中に変更されました。入力を控えてキャンセルし、現在の内容を開き直してください。');
         }
         const value = {
           title: title.value,
@@ -146,30 +170,46 @@ export function mountEditor(container: HTMLElement, host: ScopedHost<CardDocumen
     title.focus();
   }
   add.onclick = () => edit();
+  search.oninput = () => {
+    try { render(); } catch (error) { report(error); }
+  };
 
   function render(content = host.read()) {
     renderedContent = JSON.stringify(content);
-    count.textContent = `${content.cards.length} CARDS`;
+    const query = searchable(search.value.trim());
+    const matching = content.cards.map((card, index) => ({ card, index })).filter(({ card }) =>
+      !query || searchable(card.title).includes(query) || searchable(card.description).includes(query),
+    );
+    count.textContent = query ? `${matching.length} / ${content.cards.length} 件の候補` : `${content.cards.length} 件の候補`;
     add.disabled = content.cards.length >= 100;
-    list.replaceChildren();
-    if (!content.cards.length)
-      list.append(
-        element('p', '最初のカードを追加して、自分のEditorを作り始めましょう。', 'ep-card-empty'),
-      );
-    content.cards.forEach((card, index) => {
-      const item = element('article', undefined, 'ep-card');
-      item.setAttribute('role', 'listitem');
+    // Keep the search input and pending modal attached, including focus, caret and IME state.
+    rows.replaceChildren();
+    empty.hidden = matching.length > 0;
+    empty.textContent = content.cards.length
+      ? '条件に合う候補がありません。検索語を変えるか、入力を消してください。'
+      : '最初の候補を追加して、Editorのアイデアを比べましょう。';
+    matching.forEach(({ card, index }) => {
+      const item = element('tr', undefined, 'ep-idea-row');
       item.dataset.color = card.color;
       item.dataset.cardId = card.id;
-      const top = element('div', undefined, 'ep-card-top');
-      const number = element('span', String(index + 1).padStart(2, '0'), 'ep-card-number');
-      top.append(number);
+      const nameCell = element('th', undefined, 'ep-idea-name');
+      nameCell.scope = 'row';
       const title = element('h3', card.title);
+      nameCell.append(title);
+      const descriptionCell = element('td');
       const description = element(
         'p',
         card.description || '説明を追加できます。',
         'ep-card-description',
       );
+      descriptionCell.append(description);
+      const colorCell = element('td');
+      const color = element('span', undefined, 'ep-idea-color');
+      const swatch = element('span', undefined, 'ep-idea-swatch');
+      swatch.setAttribute('aria-hidden', 'true');
+      color.append(swatch, document.createTextNode(colorLabels[card.color]));
+      colorCell.append(color);
+      const actionsCell = element('td');
       const actions = element('div', undefined, 'ep-card-actions');
       const editButton = element('button', '編集');
       editButton.type = 'button';
@@ -190,14 +230,15 @@ export function mountEditor(container: HTMLElement, host: ScopedHost<CardDocumen
       remove.setAttribute('aria-label', `「${card.title}」を削除`);
       remove.onclick = () => execute(() => host.execute(removeCard(card.id)));
       actions.append(editButton, up, down, remove);
-      item.append(top, title, description, actions);
-      list.append(item);
+      actionsCell.append(actions);
+      item.append(nameCell, descriptionCell, colorCell, actionsCell);
+      rows.append(item);
     });
   }
   render();
   // draft.1 exposes read(), not subscribe(). PaoBub keeps this Surface mounted
-  // across Host Undo/Redo and proposals. Refresh only the list; a pending modal
-  // and its inputs stay attached until the user applies or cancels them.
+  // across Host Undo/Redo and proposals. Refresh only table rows; the search
+  // field and a pending modal stay attached with their current input state.
   const refresh = window.setInterval(() => {
     try {
       const content = host.read();
