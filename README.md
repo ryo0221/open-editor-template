@@ -35,6 +35,8 @@ PaoBub向けのpackageは`dist/paobub/package-store/tokiwa.idea-comparison-edito
 
 このdogfoodの対象は、**PaoBubのコードEditorでソース変更を保存し、既存の受け入れgateで実際の検査・ビルドを流し、その生成packageを別Projectから利用する流れ**です。gateでは`npm ci`、型検査、テスト、拡張ビルド、独立package検証を実行します。開発は人の手編集経路を使い、実AIによるコード生成や応答品質は検証対象に含めていません。Hostへの信頼登録も、PaoBub UIだけで自動完了する機能としては扱いません。
 
+単独Editorの14件のブラウザ検証と、PaoBub内での開発・別Project利用の成功結果は[dogfoodの検証記録](docs/dogfood.md)にまとめています。
+
 この分岐は元テンプレートのnpm metadataを引き継いでいるため、`package.json`とnpmコマンドの表示は`open-editor-template@0.2.0`です。配布Editorの識別情報は`src/extension.ts`から生成される上記の`0.1.0`を使います。
 
 以下の詳しい説明と[既存の検証記録](docs/verification.md)は、元テンプレートの機能・過去の検証を記したものです。記載された`example.card-editor@0.2.0`や過去のCI成功を、この新Editorの実証結果として読み替えないでください。この分岐の検証結果は、対象commitに対するCIとdogfoodの記録で確認します。
