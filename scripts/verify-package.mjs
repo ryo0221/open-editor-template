@@ -38,11 +38,13 @@ const loaded = await loadVerifiedExtension(verified, {
 });
 const registry = new ExtensionRegistry();
 const registration = installVerifiedExtension(registry, loaded);
-const content = { cards: [
+const content = { artifactKind: registration.manifest.artifactKind, schemaVersion: registration.manifest.schemaVersion, cards: [
   { id: 'one', title: 'First', description: 'Independent consumer', color: 'blue' },
   { id: 'two', title: 'Second', description: '', color: 'green' },
 ] };
 assert.ok(loaded.definition.validate(content));
+assert.equal(loaded.definition.validate({ cards: content.cards }), false, 'old unversioned documents must be rejected');
+assert.equal(loaded.definition.validate({ ...content, schemaVersion: 1 }), false, 'old native schema must be rejected');
 const storage = new MemoryStorage();
 const artifact = createArtifact(registration.manifest.artifactKind, 'Package verification', content);
 let editable = true;
@@ -55,6 +57,8 @@ const operation = { id: 'rename-card', version: '1.0.0' };
 const proposal = handle.operations.prepare(operation, { id: 'one', before: 'First', title: 'Reviewed' });
 assert.equal(editor.content.cards[0].title, 'First', 'preview must not mutate');
 assert.equal(proposal.candidate.cards[0].title, 'Reviewed');
+assert.equal(proposal.candidate.artifactKind, content.artifactKind);
+assert.equal(proposal.candidate.schemaVersion, content.schemaVersion);
 proposal.commit();
 assert.equal(editor.content.cards[0].title, 'Reviewed');
 assert.throws(() => proposal.commit(), /consumed|used|closed|commit/i);

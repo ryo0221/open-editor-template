@@ -3,7 +3,9 @@ import { describe, expect, it } from 'vitest';
 import example from '../fixtures/example.json';
 import { addCard, moveCard, removeCard, updateCard } from '../src/commands';
 import {
+  CARD_ARTIFACT_KIND,
   CARD_LIMITS,
+  CARD_SCHEMA_VERSION,
   createDocument,
   isCardDocument,
   validateDocument,
@@ -35,24 +37,51 @@ describe('native card model and commands', () => {
     const restored: unknown = JSON.parse(JSON.stringify(original));
     validateDocument(restored);
     expect(restored).toEqual(original);
-    expect(createDocument()).toEqual({ cards: [] });
+    expect(createDocument()).toEqual({
+      artifactKind: CARD_ARTIFACT_KIND,
+      schemaVersion: CARD_SCHEMA_VERSION,
+      cards: [],
+    });
+    expect(original).toEqual(example);
+  });
+
+  it('requires the exact native identity and rejects legacy, missing or unsupported metadata', () => {
+    const valid = createDocument([card()]);
+    const invalid: unknown[] = [
+      { cards: valid.cards },
+      { schemaVersion: CARD_SCHEMA_VERSION, cards: valid.cards },
+      { artifactKind: CARD_ARTIFACT_KIND, cards: valid.cards },
+      { ...valid, artifactKind: 'other.cards' },
+      { ...valid, artifactKind: null },
+      { ...valid, schemaVersion: 1 },
+      { ...valid, schemaVersion: 3 },
+      { ...valid, schemaVersion: '2' },
+    ];
+    for (const value of invalid) {
+      expect(isCardDocument(value)).toBe(false);
+      expect(() => validateDocument(value)).toThrow();
+    }
+    expect(() => validateDocument({ cards: valid.cards })).toThrow('形式情報のない{ cards }');
+    expect(() => validateDocument({ ...valid, artifactKind: 'other.cards' })).toThrow('artifactKind');
+    expect(() => validateDocument({ ...valid, schemaVersion: 1 })).toThrow('schemaVersion');
   });
 
   it('rejects malformed structures, extra fields, duplicate IDs and unsupported colors', () => {
     const valid = card();
+    const document = createDocument();
     const invalid: unknown[] = [
       null,
       '{"cards":[]}',
       {},
-      { cards: 'not-an-array' },
-      { cards: [], schemaVersion: 1 },
-      { cards: [valid, valid] },
-      { cards: [{ ...valid, extra: 'silently dropping data would be wrong' }] },
-      { cards: [{ ...valid, id: '' }] },
-      { cards: [{ ...valid, id: '../card' }] },
-      { cards: [{ ...valid, color: 'neon' }] },
-      { cards: [{ ...valid, description: undefined }] },
-      { cards: new Array(1) },
+      { ...document, cards: 'not-an-array' },
+      { ...document, extra: true },
+      { ...document, cards: [valid, valid] },
+      { ...document, cards: [{ ...valid, extra: 'silently dropping data would be wrong' }] },
+      { ...document, cards: [{ ...valid, id: '' }] },
+      { ...document, cards: [{ ...valid, id: '../card' }] },
+      { ...document, cards: [{ ...valid, color: 'neon' }] },
+      { ...document, cards: [{ ...valid, description: undefined }] },
+      { ...document, cards: new Array(1) },
     ];
     for (const value of invalid) {
       expect(isCardDocument(value)).toBe(false);
@@ -61,20 +90,26 @@ describe('native card model and commands', () => {
   });
 
   it('enforces count and text bounds using the same Unicode length as operations', () => {
+    const document = createDocument();
     const maximum = {
       ...card(),
       title: '😀'.repeat(CARD_LIMITS.title),
       description: '🌿'.repeat(CARD_LIMITS.description),
     };
-    expect(isCardDocument({ cards: [maximum] })).toBe(true);
-    expect(isCardDocument({ cards: [{ ...maximum, title: `${maximum.title}a` }] })).toBe(false);
+    expect(isCardDocument({ ...document, cards: [maximum] })).toBe(true);
     expect(
-      isCardDocument({ cards: [{ ...maximum, description: `${maximum.description}a` }] }),
+      isCardDocument({ ...document, cards: [{ ...maximum, title: `${maximum.title}a` }] }),
     ).toBe(false);
-    expect(isCardDocument({ cards: [{ ...card(), title: '  \n ' }] })).toBe(false);
+    expect(
+      isCardDocument({
+        ...document,
+        cards: [{ ...maximum, description: `${maximum.description}a` }],
+      }),
+    ).toBe(false);
+    expect(isCardDocument({ ...document, cards: [{ ...card(), title: '  \n ' }] })).toBe(false);
     const cards = Array.from({ length: CARD_LIMITS.cards }, (_, index) => card(`card-${index}`));
-    expect(isCardDocument({ cards })).toBe(true);
-    expect(() => addCard(card('one-more')).apply({ cards })).toThrow('100枚まで');
+    expect(isCardDocument({ ...document, cards })).toBe(true);
+    expect(() => addCard(card('one-more')).apply({ ...document, cards })).toThrow('100枚まで');
   });
 
   it('adds, edits, moves and removes without mutating inputs or changing unrelated fields', () => {
@@ -90,6 +125,34 @@ describe('native card model and commands', () => {
     const removed = removeCard('card-b').apply(freezeDocument(moved));
     expect(removed.cards.map((item) => item.id)).toEqual(['card-a', 'card-c']);
     expect(removed.cards[0].description).toBe(original.cards[0].description);
+    for (const content of [original, added, edited, moved, removed]) {
+      expect(content.artifactKind).toBe(CARD_ARTIFACT_KIND);
+      expect(content.schemaVersion).toBe(CARD_SCHEMA_VERSION);
+      expect(isCardDocument(content)).toBe(true);
+    }
+  });
+
+  it('refuses every command when the native format is missing or unsupported', () => {
+    const original = createDocument([card('card-a'), card('card-b')]);
+    const edits = [
+      addCard(card('card-c')),
+      updateCard('card-a', { title: '新しい名前' }),
+      removeCard('card-a'),
+      moveCard('card-a', 1),
+    ];
+    const invalid: unknown[] = [
+      { cards: original.cards },
+      { ...original, artifactKind: 'other.cards' },
+      { ...original, schemaVersion: 1 },
+      { ...original, schemaVersion: 3 },
+    ];
+    for (const value of invalid) {
+      const before = structuredClone(value);
+      for (const edit of edits) {
+        expect(() => edit.apply(value as CardDocument)).toThrow();
+        expect(value).toEqual(before);
+      }
+    }
   });
 
   it('captures caller inputs and checks target and movement preconditions at apply time', () => {

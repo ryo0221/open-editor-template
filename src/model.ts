@@ -1,4 +1,7 @@
-/** Native document data. The extension manifest owns the schema version. */
+/** Native identity is shared by saved JSON, the extension manifest and consuming Hosts. */
+export const CARD_ARTIFACT_KIND = 'example.cards' as const;
+export const CARD_SCHEMA_VERSION = 2 as const;
+
 export const CARD_COLORS = ['blue', 'green', 'amber', 'rose', 'purple', 'slate'] as const;
 export type CardColor = (typeof CARD_COLORS)[number];
 
@@ -12,6 +15,8 @@ export interface Card {
 }
 
 export interface CardDocument {
+  artifactKind: typeof CARD_ARTIFACT_KIND;
+  schemaVersion: typeof CARD_SCHEMA_VERSION;
   cards: Card[];
 }
 
@@ -65,8 +70,15 @@ function validateCard(value: unknown, label: string): asserts value is Card {
 
 /** Throw a readable error before any content or history is changed. Does not coerce data. */
 export function validateDocument(value: unknown): asserts value is CardDocument {
-  if (!hasOnlyFields(value, ['cards']) || !Array.isArray(value.cards))
-    throw new Error('ドキュメントはcards配列だけを持つJSONオブジェクトにしてください。');
+  if (!hasOnlyFields(value, ['artifactKind', 'schemaVersion', 'cards']))
+    throw new Error(
+      'ドキュメントにはartifactKind・schemaVersion・cardsだけが必要です。形式情報のない{ cards }は読み込めません。',
+    );
+  if (value.artifactKind !== CARD_ARTIFACT_KIND)
+    throw new Error(`artifactKindは「${CARD_ARTIFACT_KIND}」である必要があります。`);
+  if (value.schemaVersion !== CARD_SCHEMA_VERSION)
+    throw new Error(`対応するカード形式のschemaVersionは${CARD_SCHEMA_VERSION}です。`);
+  if (!Array.isArray(value.cards)) throw new Error('cardsはカードの配列にしてください。');
   if (value.cards.length > CARD_LIMITS.cards)
     throw new Error(`カードは${CARD_LIMITS.cards}枚までです。`);
   const ids = new Set<string>();
@@ -89,7 +101,11 @@ export function isCardDocument(value: unknown): value is CardDocument {
 
 /** Each caller owns a fresh document; IDs are supplied once and survive edits and saves. */
 export function createDocument(cards: readonly Card[] = []): CardDocument {
-  const value = { cards };
+  const value = {
+    artifactKind: CARD_ARTIFACT_KIND,
+    schemaVersion: CARD_SCHEMA_VERSION,
+    cards,
+  };
   validateDocument(value);
-  return { cards: value.cards.map((card) => ({ ...card })) };
+  return { ...value, cards: value.cards.map((card) => ({ ...card })) };
 }

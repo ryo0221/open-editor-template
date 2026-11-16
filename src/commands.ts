@@ -1,5 +1,11 @@
 import { command, type EditorCommand } from '@editor-platform/editor-core';
-import { validateCardId, validateDocument, type Card, type CardDocument } from './model';
+import {
+  createDocument,
+  validateCardId,
+  validateDocument,
+  type Card,
+  type CardDocument,
+} from './model';
 
 export type CardPatch = Partial<Pick<Card, 'title' | 'description' | 'color'>>;
 
@@ -24,8 +30,7 @@ function copyPatch(patch: CardPatch): CardPatch {
 }
 
 export function addCard(card: Card): EditorCommand<CardDocument> {
-  validateDocument({ cards: [card] });
-  const addition = { ...card };
+  const addition = createDocument([card]).cards[0];
   return {
     ...command<CardDocument>('cards.add', 'カードを追加', (content) => {
       validateDocument(content);

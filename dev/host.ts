@@ -11,7 +11,13 @@ import {
   type Registration,
 } from '@editor-platform/extension-runtime';
 import { artifactEditorHost } from '@editor-platform/extension-runtime/editor-host';
-import { isCardDocument, type CardDocument } from '../src/model';
+import {
+  CARD_ARTIFACT_KIND,
+  CARD_SCHEMA_VERSION,
+  isCardDocument,
+  validateDocument,
+  type CardDocument,
+} from '../src/model';
 
 export interface LocalEditorHost {
   readonly editor: ArtifactEditor<CardDocument>;
@@ -21,7 +27,9 @@ export interface LocalEditorHost {
   prepareRename(id: string, title: string): PreparedOperation<CardDocument>;
   save(): Promise<void>;
   exportNative(): Promise<string>;
+  exportDocument(): string;
   parseNative(json: string): Promise<Artifact<CardDocument>>;
+  parseImport(json: string): Promise<CardDocument>;
   reopenSaved(): Promise<LocalEditorHost>;
   close(discard?: boolean): void;
 }
@@ -35,8 +43,11 @@ export function createLocalHost(
   artifact: Artifact<CardDocument>,
   storage: Pick<StorageAdapter<Artifact<CardDocument>>, 'get' | 'put'>,
 ): LocalEditorHost {
-  if (registration.manifest.schemaVersion !== 1) {
-    throw new Error('このサンプルはカード形式の schemaVersion 1 に対応しています。');
+  if (
+    registration.manifest.artifactKind !== CARD_ARTIFACT_KIND ||
+    registration.manifest.schemaVersion !== CARD_SCHEMA_VERSION
+  ) {
+    throw new Error(`このサンプルは ${CARD_ARTIFACT_KIND}@${CARD_SCHEMA_VERSION} に対応しています。`);
   }
   let readOnly = false;
   let permissionEpoch = 0;
@@ -67,7 +78,8 @@ export function createLocalHost(
   const handle = registration.open(
     artifactEditorHost(editor, {
       schemaVersion: registration.manifest.schemaVersion,
-      allowed: (permission) => permission !== 'artifact:write' || !readOnly,
+      allowed: (permission) =>
+        permission === 'artifact:read' || (permission === 'artifact:write' && !readOnly),
     }),
   );
   const controller: LocalEditorHost = {
@@ -115,8 +127,20 @@ export function createLocalHost(
     async exportNative() {
       return (await editor.export('native-json')) as string;
     },
+    exportDocument() {
+      validateDocument(editor.content);
+      return JSON.stringify(editor.content, null, 2) + '\n';
+    },
     parseNative(json) {
       return loadHostArtifact(json, adapter);
+    },
+    async parseImport(json) {
+      const value: unknown = JSON.parse(json);
+      if (value && typeof value === 'object' && 'cards' in value) {
+        validateDocument(value);
+        return value;
+      }
+      return (await loadHostArtifact(json, adapter)).draft.content;
     },
     async reopenSaved() {
       // A reload must not silently discard a draft. The UI can offer an explicit

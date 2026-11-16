@@ -27,6 +27,7 @@ export function mountEditor(container: HTMLElement, host: ScopedHost<CardDocumen
   root.append(style, toolbar, list, status);
   container.append(root);
   const dialogCleanups = new Set<() => void>();
+  let renderedContent = '';
 
   function report(error: unknown) {
     status.textContent = error instanceof Error ? error.message : '操作を完了できませんでした。';
@@ -115,6 +116,14 @@ export function mountEditor(container: HTMLElement, host: ScopedHost<CardDocumen
     form.onsubmit = (event) => {
       event.preventDefault();
       try {
+        if (card) {
+          const current = host.read().cards.find((item) => item.id === card.id);
+          if (
+            !current || current.title !== card.title ||
+            current.description !== card.description || current.color !== card.color
+          )
+            throw new Error('このカードは編集中に変更されました。入力を控えてキャンセルし、現在の内容を開き直してください。');
+        }
         const value = {
           title: title.value,
           description: description.value,
@@ -138,8 +147,8 @@ export function mountEditor(container: HTMLElement, host: ScopedHost<CardDocumen
   }
   add.onclick = () => edit();
 
-  function render() {
-    const content = host.read();
+  function render(content = host.read()) {
+    renderedContent = JSON.stringify(content);
     count.textContent = `${content.cards.length} CARDS`;
     add.disabled = content.cards.length >= 100;
     list.replaceChildren();
@@ -154,22 +163,7 @@ export function mountEditor(container: HTMLElement, host: ScopedHost<CardDocumen
       item.dataset.cardId = card.id;
       const top = element('div', undefined, 'ep-card-top');
       const number = element('span', String(index + 1).padStart(2, '0'), 'ep-card-number');
-      const select = element('button', '選択', 'ep-card-select');
-      select.type = 'button';
-      select.setAttribute('aria-label', `「${card.title}」を選択`);
-      select.setAttribute('aria-pressed', 'false');
-      select.onclick = () => {
-        try {
-          host.select([card.id]);
-          for (const button of list.querySelectorAll('.ep-card-select'))
-            button.setAttribute('aria-pressed', 'false');
-          select.setAttribute('aria-pressed', 'true');
-          status.textContent = `「${card.title}」を選択しました。`;
-        } catch (error) {
-          report(error);
-        }
-      };
-      top.append(number, select);
+      top.append(number);
       const title = element('h3', card.title);
       const description = element(
         'p',
@@ -201,7 +195,19 @@ export function mountEditor(container: HTMLElement, host: ScopedHost<CardDocumen
     });
   }
   render();
+  // draft.1 exposes read(), not subscribe(). PaoBub keeps this Surface mounted
+  // across Host Undo/Redo and proposals. Refresh only the list; a pending modal
+  // and its inputs stay attached until the user applies or cancels them.
+  const refresh = window.setInterval(() => {
+    try {
+      const content = host.read();
+      if (JSON.stringify(content) !== renderedContent) render(content);
+    } catch (error) {
+      report(error);
+    }
+  }, 200);
   return () => {
+    window.clearInterval(refresh);
     for (const cleanup of dialogCleanups) cleanup();
     root.remove();
   };

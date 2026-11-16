@@ -11,7 +11,13 @@ import {
 } from '@editor-platform/extension-runtime';
 import { describe, expect, it } from 'vitest';
 import { removeCard, updateCard } from '../src/commands';
-import { createDocument, isCardDocument, type CardDocument } from '../src/model';
+import {
+  CARD_ARTIFACT_KIND,
+  CARD_SCHEMA_VERSION,
+  createDocument,
+  isCardDocument,
+  type CardDocument,
+} from '../src/model';
 import { operationDeclarations, operations, renameCardOperation } from '../src/operations';
 
 const operationRef = { id: renameCardOperation.id, version: renameCardOperation.version };
@@ -30,8 +36,8 @@ function fixture() {
       contractVersion: CONTRACT_VERSION,
       id: 'example.cards-test',
       version: '0.0.1',
-      artifactKind: 'example.cards-test',
-      schemaVersion: 1,
+      artifactKind: CARD_ARTIFACT_KIND,
+      schemaVersion: CARD_SCHEMA_VERSION,
       packageHash,
       capabilities: ['local-edit'],
       permissions: ['artifact:read', 'artifact:write'],
@@ -48,7 +54,7 @@ function fixture() {
   });
   const handle = registration.open({
     artifactKind: definition.manifest.artifactKind,
-    schemaVersion: 1,
+    schemaVersion: CARD_SCHEMA_VERSION,
     allowed: () => true,
     readOnly: () => false,
     read: () => session.content,
@@ -109,6 +115,10 @@ describe('rename-card through the EP operations contract', () => {
     const prepared = handle.operations!.prepare(operationRef, input);
     expect(session.content).toEqual(initial());
     expect(prepared.candidate).toEqual(expected);
+    expect(prepared.candidate).toMatchObject({
+      artifactKind: CARD_ARTIFACT_KIND,
+      schemaVersion: CARD_SCHEMA_VERSION,
+    });
     prepared.commit({ origin: 'proposal', transactionId: 'reviewed-rename' });
     expect(session.content).toEqual(expected);
     expect(session.proposalTransactions).toEqual(['reviewed-rename']);
@@ -120,6 +130,26 @@ describe('rename-card through the EP operations contract', () => {
     session.redo();
     expect(session.content).toEqual(expected);
     expect(session.proposalTransactions).toEqual(['reviewed-rename']);
+  });
+
+  it('rejects missing or unsupported native metadata before preparing or applying a proposal', () => {
+    const content = initial();
+    const edit = operations.command(operationRef.id, input, content);
+    const invalid: unknown[] = [
+      { cards: content.cards },
+      { ...content, artifactKind: 'other.cards' },
+      { ...content, schemaVersion: 1 },
+      { ...content, schemaVersion: 3 },
+    ];
+    for (const value of invalid) {
+      const before = structuredClone(value);
+      expect(
+        operations.checkInput(operationRef.id, input, value as CardDocument).length,
+      ).toBeGreaterThan(0);
+      expect(() => operations.command(operationRef.id, input, value as CardDocument)).toThrow();
+      expect(() => edit.apply(value as CardDocument)).toThrow();
+      expect(value).toEqual(before);
+    }
   });
 
   it('refuses wrong targets, stale source titles and blank titles without changing history', () => {

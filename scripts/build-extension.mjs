@@ -2,6 +2,7 @@ import { build } from 'esbuild';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { exportPaobubBuild } from './export-paobub.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 
@@ -27,6 +28,7 @@ const importBytes = (bytes) =>
 export async function buildExtension({
   write = true,
   outDir = path.join(root, 'dist/extension'),
+  paobubOutDir = path.resolve(outDir, '../paobub'),
 } = {}) {
   const bundled = await build({
     absWorkingDir: root,
@@ -49,7 +51,8 @@ export async function buildExtension({
   const entry = bundled.outputFiles[0].contents;
   // The package factory is trusted local build input; mounting is browser-only.
   const { definition } = await importBytes(entry);
-  const { packageHash: _ignored, ...manifest } = definition(`sha256:${'0'.repeat(64)}`).manifest;
+  const localDefinition = definition(`sha256:${'0'.repeat(64)}`);
+  const { packageHash: _ignored, ...manifest } = localDefinition.manifest;
   // Bundle the public TS helper as upstream's build does; Node never deep-imports
   // internal source or relies on workspace resolution/TypeScript transpilation.
   const helpers = await build({
@@ -104,6 +107,12 @@ export async function buildExtension({
       ),
       ...prepared.files.map((file) => writeFile(path.join(outDir, file.path), file.bytes)),
     ]);
+    await exportPaobubBuild({
+      prepared,
+      nativeContent: JSON.parse(await readFile(path.join(root, 'fixtures/example.json'), 'utf8')),
+      validate: localDefinition.validate,
+      outDir: paobubOutDir,
+    });
   }
   return transport;
 }
@@ -113,4 +122,5 @@ if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.ar
   console.log(`Built ${transport.manifest.id}@${transport.manifest.version}`);
   console.log(`Package pin: ${transport.packageHash}`);
   console.log('Output: dist/extension/package.json (trust only a pin from your own review/build).');
+  console.log('PaoBub setup: dist/paobub/ (Host trust is configured separately after review).');
 }

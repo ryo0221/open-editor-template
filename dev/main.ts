@@ -26,7 +26,7 @@ app.innerHTML = `
         <div class="host-toolbar"><div class="toolbar-group"><button id="undo" disabled>↶ Undo</button><button id="redo" disabled>↷ Redo</button></div><div class="toolbar-group"><button id="reload" disabled>再読み込み</button><button id="save" class="primary" disabled>保存</button></div></div>
         <p id="readonly-note" class="readonly-note" hidden>読み取り専用です。編集操作はHostで拒否されます。</p>
         <fieldset id="surface-fieldset"><legend class="sr-only">カードEditor</legend><div id="surface"></div></fieldset>
-        <div class="canvas-footer"><span id="artifact-label">サンプルを読み込んでいます</span><div><button id="import" disabled>JSONを取り込む</button><button id="export" disabled>JSONを書き出す</button></div></div>
+        <div class="canvas-footer"><span id="artifact-label">サンプルを読み込んでいます</span><div><button id="import" disabled>JSONを取り込む</button><button id="export-document" disabled>PaoBub用JSONを書き出す</button><button id="export" disabled>バックアップを書き出す</button></div></div>
         <input id="file" type="file" accept="application/json,.json" hidden />
       </section>
       <aside class="side-panel">
@@ -34,7 +34,7 @@ app.innerHTML = `
           <form id="proposal-form"><label>対象のカード<select id="proposal-card" required></select></label><label>新しいタイトル<input id="proposal-title" value="街の小さな図書館" required autocomplete="off" /></label><button id="prepare" class="wide-button" disabled>変更をプレビュー</button></form>
           <section id="proposal-preview" class="proposal-preview" hidden aria-label="変更のプレビュー"><span class="preview-label">タイトルの変更</span><p id="proposal-before" class="before-value"></p><p id="proposal-after" class="after-value"></p><p id="proposal-stale" class="stale-message" hidden>内容または権限が変わりました。提案を作り直してください。</p><div class="proposal-actions"><button id="reject">破棄</button><button id="apply" class="primary">採用</button></div></section>
         </section>
-        <section class="tool-panel" aria-labelledby="checks-heading"><p class="eyebrow">HOST CONTROLS</p><h2 id="checks-heading">動作を確認する</h2><label class="toggle"><span>読み取り専用</span><input id="readonly" type="checkbox" /></label><label class="toggle"><span>保存エラーを再現</span><input id="save-failure" type="checkbox" /></label><dl class="diagnostics"><div><dt>変更番号</dt><dd id="revision">—</dd></div><div><dt>選択</dt><dd id="selection">なし</dd></div></dl><details><summary>現在のデータを見る</summary><pre id="native-data"></pre></details></section>
+        <section class="tool-panel" aria-labelledby="checks-heading"><p class="eyebrow">HOST CONTROLS</p><h2 id="checks-heading">動作を確認する</h2><label class="toggle"><span>読み取り専用</span><input id="readonly" type="checkbox" /></label><label class="toggle"><span>保存エラーを再現</span><input id="save-failure" type="checkbox" /></label><dl class="diagnostics"><div><dt>変更番号</dt><dd id="revision">—</dd></div><div><dt>データ形式</dt><dd id="document-format">—</dd></div></dl><details><summary>現在のデータを見る</summary><pre id="native-data"></pre></details></section>
         <section class="start-panel"><p class="eyebrow">MAKE IT YOURS</p><h2>この3か所から始める</h2><p><code>src/Editor.ts</code><span>画面と操作</span></p><p><code>src/model.ts</code><span>保存するデータ</span></p><p><code>src/commands.ts</code><span>データの変更</span></p></section>
       </aside>
     </div>
@@ -96,7 +96,9 @@ async function main() {
       surfaceHandle = registration.open(
         artifactEditorHost(host.editor, {
           schemaVersion: registration.manifest.schemaVersion,
-          allowed: (permission) => permission !== 'artifact:write' || !host.editor.readOnly,
+          allowed: (permission) =>
+            permission === 'artifact:read' ||
+            (permission === 'artifact:write' && !host.editor.readOnly),
         }),
       );
       surfaceHandle.mount(get('surface'));
@@ -117,11 +119,12 @@ async function main() {
     button('save').disabled = snapshot.readOnly || hostBusy || snapshot.saving;
     button('reload').disabled = !hasSaved || hostBusy || snapshot.saving;
     button('export').disabled = hostBusy;
+    button('export-document').disabled = hostBusy;
     button('import').disabled = snapshot.readOnly || hostBusy;
     button('prepare').disabled = snapshot.readOnly || hostBusy || !snapshot.content.cards.length;
     get('revision').textContent = String(snapshot.revision.sequence);
-    get('selection').textContent =
-      snapshot.selection.addresses.map((address) => address.elementId).join(', ') || 'なし';
+    get('document-format').textContent =
+      `${snapshot.content.artifactKind}@${snapshot.content.schemaVersion}`;
     get('native-data').textContent = JSON.stringify(snapshot.content, null, 2);
     get('artifact-label').textContent =
       `${snapshot.content.cards.length}枚のカード · このブラウザに保存`;
@@ -271,15 +274,21 @@ async function main() {
     get('proposal-preview').hidden = true;
     message('提案を破棄しました。データは変更していません。');
   };
-  button('export').onclick = act(async () => {
-    const json = await host.exportNative();
+  function downloadJson(json: string, filename: string) {
     const url = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
     const anchor = document.createElement('a');
     anchor.href = url;
-    anchor.download = 'cards.artifact.json';
+    anchor.download = filename;
     anchor.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-    message('現在のデータをJSONに書き出しました。');
+  }
+  button('export').onclick = act(async () => {
+    downloadJson(await host.exportNative(), 'cards.artifact.json');
+    message('保存版を含むバックアップを書き出しました。');
+  });
+  button('export-document').onclick = act(() => {
+    downloadJson(host.exportDocument(), 'cards.json');
+    message('PaoBubで開くためのカードJSONを書き出しました。登録済みの同じEditorを使用してください。');
   });
   button('import').onclick = () => input('file').click();
   input('file').onchange = act(async () => {
@@ -290,8 +299,8 @@ async function main() {
     hostBusy = true;
     refresh();
     try {
-      const imported = await host.parseNative(await file.text());
-      host.editor.importContent(imported.draft.content);
+      const imported = await host.parseImport(await file.text());
+      host.editor.importContent(imported);
       message('JSONの編集内容を取り込みました。Undoで戻せます。');
     } finally {
       hostBusy = false;

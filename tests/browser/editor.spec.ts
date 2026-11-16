@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { readFile } from 'node:fs/promises';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
@@ -87,7 +88,7 @@ test('preserves changes on save failure and rejects corrupt import; native expor
   await page.getByRole('button', { name: '保存', exact: true }).click();
   await expect(page.locator('#save-state')).toHaveText('保存済み');
   const downloaded = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'JSONを書き出す', exact: true }).click();
+  await page.getByRole('button', { name: 'バックアップを書き出す', exact: true }).click();
   const download = await downloaded;
   expect(download.suggestedFilename()).toBe('cards.artifact.json');
   const file = await download.path();
@@ -119,4 +120,28 @@ test('read-only disables editing and invalidates retained proposals after permis
   await expect(page.getByRole('button', { name: '＋ カードを追加', exact: true })).toBeEnabled();
   await expect(page.getByRole('button', { name: '採用', exact: true })).toBeDisabled();
   await expect(page.getByRole('listitem').first().getByRole('heading')).toHaveText('小さな図書館');
+});
+
+test('exports a PaoBub document and reimports its edits through shared Undo', async ({ page }) => {
+  await page.getByRole('button', { name: '「小さな図書館」を編集' }).click();
+  await page.getByRole('dialog').getByLabel('タイトル', { exact: true }).fill('持ち出すカード');
+  await page.getByRole('button', { name: '変更を適用', exact: true }).click();
+  const downloaded = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'PaoBub用JSONを書き出す', exact: true }).click();
+  const download = await downloaded;
+  expect(download.suggestedFilename()).toBe('cards.json');
+  const path = (await download.path())!;
+  const document = JSON.parse(await readFile(path, 'utf8'));
+  expect(document).toMatchObject({ artifactKind: 'example.cards', schemaVersion: 2 });
+  expect(document).not.toHaveProperty('draft');
+  expect(document.cards[0]).toMatchObject({ id: 'card-library', title: '持ち出すカード' });
+  await page.getByRole('button', { name: '「持ち出すカード」を削除' }).click();
+  await expect(page.getByRole('listitem')).toHaveCount(2);
+  await page.locator('#file').setInputFiles(path);
+  await expect(page.getByRole('listitem')).toHaveCount(3);
+  await expect(page.getByRole('listitem').first()).toContainText('持ち出すカード');
+  await page.getByRole('button', { name: '↶ Undo', exact: true }).click();
+  await expect(page.getByRole('listitem')).toHaveCount(2);
+  await page.getByRole('button', { name: '↷ Redo', exact: true }).click();
+  await expect(page.getByRole('listitem')).toHaveCount(3);
 });

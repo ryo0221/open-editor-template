@@ -9,7 +9,7 @@ import {
 } from '@editor-platform/extension-runtime/package';
 import { createLocalHost } from '../dev/host';
 import { updateCard } from '../src/commands';
-import { createDocument, type CardDocument } from '../src/model';
+import { CARD_ARTIFACT_KIND, CARD_SCHEMA_VERSION, createDocument, type CardDocument } from '../src/model';
 import { buildExtension } from '../scripts/build-extension.mjs';
 
 let loaded: LoadedExtension<CardDocument>;
@@ -146,5 +146,41 @@ describe('real local Host lifecycle', () => {
     await expect(host.reopenSaved()).rejects.toThrow(/保存/);
     expect(host.editor.content.cards[0].description).toBe('未保存の説明');
     host.close(true);
+  });
+
+  it('exports PaoBub native content and imports it as one edit without replacing artifact identity', async () => {
+    const { host } = setup();
+    const id = host.editor.id;
+    const original = host.editor.content;
+    const document = JSON.parse(host.exportDocument());
+    expect(document).toEqual(original);
+    expect(document).toMatchObject({ artifactKind: CARD_ARTIFACT_KIND, schemaVersion: CARD_SCHEMA_VERSION });
+    expect(document).not.toHaveProperty('draft');
+    document.cards[0].title = 'PaoBubで編集したカード';
+    host.editor.importContent(await host.parseImport(JSON.stringify(document)));
+    expect(host.editor.id).toBe(id);
+    expect(host.editor.content.cards[0].title).toBe('PaoBubで編集したカード');
+    host.handle.api.undo();
+    expect(host.editor.content).toEqual(original);
+    host.handle.api.redo();
+    expect(host.editor.content.cards[0].title).toBe('PaoBubで編集したカード');
+    expect(await host.parseImport(await host.exportNative())).toEqual(host.editor.content);
+    host.close(true);
+  });
+
+  it('refuses old or different native formats without changing current content or history', async () => {
+    const { host } = setup();
+    const document = JSON.parse(host.exportDocument());
+    const before = host.editor.snapshot;
+    for (const invalid of [
+      { cards: document.cards },
+      { ...document, schemaVersion: 1 },
+      { ...document, artifactKind: 'another.editor' },
+      { ...document, extra: true },
+    ]) {
+      await expect(host.parseImport(JSON.stringify(invalid))).rejects.toThrow();
+      expect(host.editor.snapshot).toEqual(before);
+    }
+    host.close();
   });
 });
