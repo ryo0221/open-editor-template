@@ -1,5 +1,24 @@
 # 検証記録
 
+## 0.2.1 — 公開切替後の SDK 固定先更新（ローカル候補）
+
+確認日: 2026-11-19。template main `ba1dcfecb9124e9c39a644b0e9230972dd0fd1a7` のテキスト全件を Git blob hash で照合した隔離コピーを使用。履歴記録の PNG 2 件は未取得で、完全な remote tree の clone ではない。実行環境は Node.js 24.19.0 / npm 11.9.0 / Chromium 151.0.7922.173。
+
+SDK の固定先は公開済み `44fb3e10744fd63967aaa3d3a321936cf4af862c`。36 upstream files 中34件は旧 `0ee0c711027b73e0112a544783793a3563808dd7` と一致し、artifact-core の IndexedDB 保存実装と DUAL-LICENSING.md が変わった。他4 package の upstream 入力は同一。pin だけの更新ではない。
+
+| 検査 | 今回の結果 |
+| --- | --- |
+| `npm ci`（専用 cache）、SDK provenance / offline isolation | PASS。36ファイル、5 package。registry 依存の版・integrity は不変 |
+| `npm run check` | PASS。SDK照合・型検査 |
+| `npm test` | 7 files / 32 PASS / 0 FAIL / 0 SKIP |
+| `npm run build` / `npm run verify:package` | PASS。独立した利用側の package・操作・履歴・保存を検証 |
+| `npm run test:e2e` | desktop/mobile 計12 PASS / 0 FAIL / 0 SKIP、再試行なし。実 IndexedDB への保存と再読込を含む |
+| 実 PaoBub 4ケース | NOT RUN。固定版 Host・検証ブランチ・起動環境がこの隔離領域にはない。下記0.2.0の過去PASSを流用しない |
+
+配布 package は `example.card-editor@0.2.1`、pin は `sha256:1c11fc407d3e4b8f194036e584df7ff10018bed944d44aba3815defcf53a05ef`。固定先更新後の初期ビルドは旧0.2.0のまま別hashになったため、既存ID/versionを置換しないよう配布版を更新した。native schema 2、外側Artifact schema 1、assertion、skip、timeout は変更していない。旧版・旧pinは保持する。
+
+保存検証はカードEditorが使用する通常の経路に限定され、新しい parts 分割保存の全分岐や全Hostの互換性の証明ではない。Host信頼登録・公開・push・CI起動は行っていない。実PaoBub受入と所有者によるHost pin承認は別途必要。
+
 ## 0.2.0 — PaoBub向けデータと導入素材
 
 確認日: 2026-11-16。ローカル実行環境: Node.js 24.22.1 / npm 11.9.0。

@@ -112,7 +112,7 @@ Runtimeのprepareで変更候補を作り、人が内容を確認してからcom
 | PaoBubなどの製品Host | manifest、validator、表示、commands／operations、kind・schemaを持つnative成果物 | 参加者、権限、入力版、実行、採否、保存、来歴 |
 | Community | 説明、サンプル成果物、対応版、配布物と対応ソース | 発見、紹介、配布、改良・交流の場 |
 
-`npm run build:extension`または`npm run build`で、PaoBub向けのpackage・binding・工程定義・Project例を`dist/paobub/`へ生成します。例えば初期設定では、packageは`package-store/example.card-editor@0.2.0.json`、成果物本体は`project/docs/example-cards.json`です。生成物だけでHostへの信頼登録や導入が済むわけではありません。手順は[PaoBub連携ガイド](paobub.md)、確認済みの範囲は[検証記録](verification.md)を参照してください。
+`npm run build:extension`または`npm run build`で、PaoBub向けのpackage・binding・工程定義・Project例を`dist/paobub/`へ生成します。例えば初期設定では、packageは`package-store/example.card-editor@0.2.1.json`、成果物本体は`project/docs/example-cards.json`です。生成物だけでHostへの信頼登録や導入が済むわけではありません。手順は[PaoBub連携ガイド](paobub.md)、確認済みの範囲は[検証記録](verification.md)を参照してください。
 
 Communityへの公開や実AIの接続は別途行います。Editorが形式と編集能力を提供し、Hostが共通の実行・保存経路を使う境界を保ちます。
 

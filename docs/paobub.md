@@ -9,12 +9,14 @@
 | 対象 | このガイドの基準 |
 | --- | --- |
 | PaoBub | `ryo0221/paobub` main `83606171e28058ea87c2ea86b6df3dc4100f433a` |
-| テンプレートのEditor | `example.card-editor@0.2.0` |
+| テンプレートのEditor | `example.card-editor@0.2.1` |
 | カードのnative形式 | `artifactKind: "example.cards"`、`schemaVersion: 2` |
 | 拡張のAPI契約 | `1.0.0-draft.1`、操作提案は`operations@0-draft` |
 | 利用するHost | 運用者がpackageを確認して信頼する、手元のPaoBub |
 
 手順の基準は、PaoBubの[外部Editor設計・配置手順](https://github.com/ryo0221/paobub/blob/83606171e28058ea87c2ea86b6df3dc4100f433a/docs/design/external-editor-binding.md)、[H2見本B](https://github.com/ryo0221/paobub/blob/83606171e28058ea87c2ea86b6df3dc4100f433a/tests/e2e/h2-samples.ts)、現行の起動・登録コードです。ソース上の接続と、実際のPaoBubで実行した試験は区別します。実行結果・対象SHA・未実施項目は[検証記録](verification.md)を参照してください。この手順書自体はE2Eの成功記録ではありません。
+
+0.2.1 の実PaoBub 4ケースは未実施です。0.2.0 の過去の成功を新版の受入結果とは扱わず、新pinを確認してからHost側で別途検証・信頼登録してください。
 
 ## 1. 自分で確認したソースをビルドする
 
@@ -31,10 +33,10 @@ npm run verify:package
 
 | `dist/paobub/`内のファイル | 用途 |
 | --- | --- |
-| `package-store/example.card-editor@0.2.0.json` | PaoBub用のpackage本体。`manifest`、`entry`、base64の`files`を持つ |
+| `package-store/example.card-editor@0.2.1.json` | PaoBub用のpackage本体。`manifest`、`entry`、base64の`files`を持つ |
 | `host-pin.json` | このローカルビルドの`{ id, version, hash }`。運用者が信頼する版を確認する材料 |
 | `editor-binding.json` | 成果物IDから`ext:example.card-editor`とpackage pinへの対応 |
-| `definition.json` | `example-card-editor-demo@0.2.0`の最小ワークフロー定義 |
+| `definition.json` | `example-card-editor-demo@0.2.1`の最小ワークフロー定義 |
 | `project/workflow.json` | 成果物・工程・Thread・Editor bindingのProject設定 |
 | `project/docs/example-cards.json` | 初期カードのnative JSON。`fixtures/example.json`を検証して出力 |
 | `project/trace/citations.json` | Projectが使う空の引用・免除一覧 |
@@ -53,8 +55,8 @@ export PAOBUB_EDITOR_PACKAGES="$HOME/.local/share/paobub/editor-packages"
 mkdir -p "$PAOBUB_EDITOR_PACKAGES"
 
 cat "$CARD_TEMPLATE/dist/paobub/host-pin.json"
-cp -i "$CARD_TEMPLATE/dist/paobub/package-store/example.card-editor@0.2.0.json" \
-  "$PAOBUB_EDITOR_PACKAGES/example.card-editor@0.2.0.json"
+cp -i "$CARD_TEMPLATE/dist/paobub/package-store/example.card-editor@0.2.1.json" \
+  "$PAOBUB_EDITOR_PACKAGES/example.card-editor@0.2.1.json"
 ```
 
 同じID・versionのファイルが既にある場合は、中身とpinを確認します。内容が異なる版を配るときはEditorのversionを上げて再ビルドし、既存Projectが使う版を残してください。
@@ -67,7 +69,7 @@ cp -i "$CARD_TEMPLATE/dist/paobub/package-store/example.card-editor@0.2.0.json" 
 [
   {
     "id": "example.card-editor",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "hash": "sha256:<自分で確認した今回のビルドの64桁のhash>"
   }
 ]
@@ -115,7 +117,7 @@ git -C "$CARD_PROJECT" commit -m "Start the card Editor example"
       "editor": "ext:example.card-editor",
       "package": {
         "id": "example.card-editor",
-        "version": "0.2.0",
+        "version": "0.2.1",
         "hash": "sha256:<確認したビルドのhash>"
       }
     }
@@ -171,7 +173,7 @@ UIの「既存を選ぶ」はArtifacts上のリポジトリを選ぶ操作です
 
 ## 6. 開く・編集・保存を確認する
 
-ProjectのThread「編集」で、成果物「カード」の`docs/example-cards.json`を開きます。PaoBubの「外部 Editor の登録」の表示で`example.card-editor@0.2.0`が使われていることを確認してください。
+ProjectのThread「編集」で、成果物「カード」の`docs/example-cards.json`を開きます。PaoBubの「外部 Editor の登録」の表示で`example.card-editor@0.2.1`が使われていることを確認してください。
 
 1. カードの「編集」でタイトルを変更し、「変更を適用」を押す。
 2. PaoBubの「取り消す」「やり直す」で内容と一覧が戻ることを確認する。カードIDや他のカードの値は維持される。

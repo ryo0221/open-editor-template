@@ -24,7 +24,7 @@
     "@editor-platform/extension-contract": "file:../extension-contract"
   },
   "openEditorTemplateVendor": {
-    "sourceCommit": "0ee0c711027b73e0112a544783793a3563808dd7",
+    "sourceCommit": "44fb3e10744fd63967aaa3d3a321936cf4af862c",
     "packagingModified": "2026-11-16",
     "originalManifest": "../../upstream-manifests/editor-host.json"
   }
