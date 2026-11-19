@@ -2,8 +2,8 @@
   "format": "open-editor-template-vendor-1",
   "source": {
     "repository": "ryo0221/open-editor-platform",
-    "commit": "0ee0c711027b73e0112a544783793a3563808dd7",
-    "url": "https://github.com/ryo0221/open-editor-platform/tree/0ee0c711027b73e0112a544783793a3563808dd7"
+    "commit": "44fb3e10744fd63967aaa3d3a321936cf4af862c",
+    "url": "https://github.com/ryo0221/open-editor-platform/tree/44fb3e10744fd63967aaa3d3a321936cf4af862c"
   },
   "contractVersion": "1.0.0-draft.1",
   "packages": [
@@ -71,9 +71,9 @@
     {
       "upstreamPath": "DUAL-LICENSING.md",
       "path": "DUAL-LICENSING.md",
-      "gitBlobSha": "403a50a6941e89ea5674d5a022ab38b2daa34a62",
-      "sha256": "2bb48cff5f1c4d9e6446ff74fad62148a3280b17ff7f78a70c06f317fbbbff40",
-      "byteLength": 3994
+      "gitBlobSha": "52548fcd619ba57ee521b889ed8cb9a28807480d",
+      "sha256": "380974e0a417a6712ce36a6620c1dbe38c8a98f3721cec27bd3bfe63f8c1791c",
+      "byteLength": 4082
     },
     {
       "upstreamPath": "LICENSE",
@@ -99,9 +99,9 @@
     {
       "upstreamPath": "packages/artifact-core/src/index.ts",
       "path": "packages/artifact-core/src/index.ts",
-      "gitBlobSha": "eedf2154ad4c2cb084bcbb54a9e3628de9d81bac",
-      "sha256": "2b4a6dd17a583c00034ea5f06ca0edd7f707324fbe125fefa02a9784fbfb2279",
-      "byteLength": 15033
+      "gitBlobSha": "8a8f2cc292766659956bd1bdbf42172ed836a4b6",
+      "sha256": "41d9d0ae553b62bf540973edbd28e9001d20f006bfd40a1db3583b8aada3a218",
+      "byteLength": 21380
     },
     {
       "upstreamPath": "packages/artifact-core/src/proposal-reads.ts",

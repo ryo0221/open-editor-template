@@ -1,6 +1,6 @@
 # Open Editor Platform source notice
 
-Upstream: https://github.com/ryo0221/open-editor-platform/tree/0ee0c711027b73e0112a544783793a3563808dd7/packages/editor-core
+Upstream: https://github.com/ryo0221/open-editor-platform/tree/44fb3e10744fd63967aaa3d3a321936cf4af862c/packages/editor-core
 
 Package: @editor-platform/editor-core@0.1.0
 
