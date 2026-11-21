@@ -8,7 +8,7 @@
 
 ユーザーが望む題材や操作に合わせ、小さな動く変更を進める。将来の拡張だけを理由に、汎用フレームワークや新しいSDK契約を増やさない。
 
-現行の配布版は`example.card-editor@0.2.1`、native形式は`example.cards`のschema 2。最初の3ファイルは入口であり、題材や識別情報を変更する場合はextension・model・fixture・operations・tests・書き出しと配布検証の例まで整合を確認する。
+現行の配布版は`example.card-editor@0.3.0`、native形式は`example.cards`のschema 2。最初の3ファイルは入口であり、題材や識別情報を変更する場合はextension・model・fixture・operations・tests・書き出しと配布検証の例まで整合を確認する。
 
 ## 実装の境界
 
@@ -33,7 +33,7 @@
 
 ## 同梱SDK
 
-`vendor/ep/`は公開commit `44fb3e10744fd63967aaa3d3a321936cf4af862c`から固定した5つのpackageのソース。通常のEditor変更で直接修正しない。importは各packageが公開するentrypointを使い、`src/`へのdeep importや私有リポジトリへの依存を追加しない。
+`vendor/ep/`は公開commit `3808efe94d2171c9bbf3d635525ccb5bf9a4a8ff`から固定した5つのpackageのソース。通常のEditor変更で直接修正しない。importは各packageが公開するentrypointを使い、`src/`へのdeep importや私有リポジトリへの依存を追加しない。
 
 SDK更新が必要なら、公開upstreamの対象版・契約・必要ファイルを確認し、pinとprovenanceを伴う更新として扱う。`node scripts/vendor-sdk.mjs --check`を通すためにhashだけを合わせる変更はしない。`--restore`は同じ固定版の復元であり、upstream追従機能ではない。
 

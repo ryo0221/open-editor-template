@@ -1,6 +1,6 @@
 # Vendored public Editor Platform SDK
 
-Source: [ryo0221/open-editor-platform@44fb3e1](https://github.com/ryo0221/open-editor-platform/tree/44fb3e10744fd63967aaa3d3a321936cf4af862c).
+Source: [ryo0221/open-editor-platform@3808efe](https://github.com/ryo0221/open-editor-platform/tree/3808efe94d2171c9bbf3d635525ccb5bf9a4a8ff).
 Runtime contract: 1.0.0-draft.1.
 
 These are actual unchanged upstream TypeScript implementations. The five packages

@@ -5,13 +5,14 @@
 このテンプレートは、公開リポジトリ`ryo0221/open-editor-platform`の次のcommitを使います。
 
 ```text
-44fb3e10744fd63967aaa3d3a321936cf4af862c
+3808efe94d2171c9bbf3d635525ccb5bf9a4a8ff
 ```
 
 | 項目 | 対応するもの |
 | --- | --- |
 | 拡張のroot契約 | `1.0.0-draft.1` |
 | 操作提案add-on | `operations@0-draft` |
+| 作成add-on | `create@0-draft`。`definition.create()`がカードの無い文書を返す。この add-on を知らない旧 Host の runtime は package を登録しない。空の形を持たない Editor は宣言と関数の両方を外す |
 | 画面 | `ExtensionDefinition.mount`と`ScopedHost`を使うplain TypeScript DOM |
 | 編集 | `EditorCommand`、実EPのローカル履歴とUndo/Redo |
 | 保存 | 実EPの`ArtifactEditor`とstorage境界 |
@@ -50,7 +51,7 @@ PaoBub用の出力形式の基準と、実接続の検証対象は`ryo0221/paobu
 
 | 値 | 意味 | このサンプル |
 | --- | --- | --- |
-| manifestの`id`と`version` | Editor実装・配布物の識別 | `example.card-editor`／`0.2.1` |
+| manifestの`id`と`version` | Editor実装・配布物の識別 | `example.card-editor`／`0.3.0` |
 | native本体とmanifestの`artifactKind`・`schemaVersion` | Editorが扱う本体形式の識別と版。両者で一致させる | `example.cards`／`2` |
 | manifestの`contractVersion` | Hostと拡張のAPI契約 | `1.0.0-draft.1` |
 | add-onの`version` | 操作公開の追加契約 | `operations@0-draft` |
@@ -137,10 +138,10 @@ npm run verify:package
 
 | `dist/paobub/`からの相対パス | 内容 |
 | --- | --- |
-| `package-store/example.card-editor@0.2.1.json` | `{ manifest, entry, files }`形式のpackage。テンプレート用wrapperの`format`や自己申告`packageHash`は含めない |
+| `package-store/example.card-editor@0.3.0.json` | `{ manifest, entry, files }`形式のpackage。テンプレート用wrapperの`format`や自己申告`packageHash`は含めない |
 | `host-pin.json` | このビルドの`{ id, version, hash }`を確認するための記録 |
 | `editor-binding.json` | 成果物`example-cards`と`ext:example.card-editor`、固定packageの対応 |
-| `definition.json` | `example-card-editor-demo@0.2.1`の工程定義 |
+| `definition.json` | `example-card-editor-demo@0.3.0`の工程定義 |
 | `project/workflow.json` | 成果物を`as: "plain"`で参照し、Editor bindingを持つProject例 |
 | `project/docs/example-cards.json` | schema 2のnative本体。初期fixtureの検証済みコピー |
 | `project/trace/citations.json` | Project例の初期参照情報 |

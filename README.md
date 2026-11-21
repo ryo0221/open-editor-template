@@ -109,7 +109,7 @@ npm run test:e2e
 | `dist/paobub/` | PaoBubのpackage store用JSON、pinの確認用記録、Editor binding、工程定義とProject例 |
 | `dist/host/` | ローカルで拡張を試す開発Host |
 
-`dist/extension/package.json`はこのテンプレートの転送用wrapperです。PaoBubへ渡すpackageは`dist/paobub/package-store/example.card-editor@0.2.1.json`で、同じmanifest・entry・ファイル群をPaoBubが受け取る形で出力します。どちらもnpmへ公開するためのpackage manifestではありません。
+`dist/extension/package.json`はこのテンプレートの転送用wrapperです。PaoBubへ渡すpackageは`dist/paobub/package-store/example.card-editor@0.3.0.json`で、同じmanifest・entry・ファイル群をPaoBubが受け取る形で出力します。どちらもnpmへ公開するためのpackage manifestではありません。
 
 `dist/host/`は拡張を試すための開発Hostです。PaoBubやCommunityの代わりになる製品Hostではありません。
 
@@ -119,7 +119,7 @@ npm run test:e2e
 
 `npm run build:extension`または`npm run build`で、`dist/paobub/`へ次を生成します。
 
-- `package-store/example.card-editor@0.2.1.json`：拡張package。
+- `package-store/example.card-editor@0.3.0.json`：拡張package。
 - `host-pin.json`：このビルドのID・版・hashを確認するための記録。
 - `editor-binding.json`：成果物と、`ext:example.card-editor`＋固定package版の対応。
 - `definition.json`：カードを編集・保存して確かめる最小の工程定義。
@@ -134,10 +134,11 @@ npm run test:e2e
 このテンプレートは次の公開ソースを固定しています。
 
 - 公開リポジトリ：`ryo0221/open-editor-platform`
-- commit：`44fb3e10744fd63967aaa3d3a321936cf4af862c`
+- commit：`3808efe94d2171c9bbf3d635525ccb5bf9a4a8ff`
 - root契約：`1.0.0-draft.1`
 - 操作提案のadd-on：`operations@0-draft`
-- Editorの配布版：`example.card-editor@0.2.1`
+- 最初の中身を作るadd-on：`create@0-draft`（カードの無い文書を返す。Hostがまだ無い成果物を作るときに使う）
+- Editorの配布版：`example.card-editor@0.3.0`
 - カードのnative形式：`example.cards`、schema 2
 
 初期manifestは、`local-edit`・`surface`・`persistence`と、`artifact:read`・`artifact:write`だけを宣言します。選択操作の権限は要求しません。追加の能力が必要になった場合は、対応するHostとの接続を確認してから宣言と実装を加えます。

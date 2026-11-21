@@ -1,6 +1,6 @@
 # Open Editor Platform source notice
 
-Upstream: https://github.com/ryo0221/open-editor-platform/tree/44fb3e10744fd63967aaa3d3a321936cf4af862c/packages/artifact-core
+Upstream: https://github.com/ryo0221/open-editor-platform/tree/3808efe94d2171c9bbf3d635525ccb5bf9a4a8ff/packages/artifact-core
 
 Package: @editor-platform/artifact-core@0.1.0
 
