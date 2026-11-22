@@ -1,6 +1,6 @@
 # Open Editor Platform source notice
 
-Upstream: https://github.com/ryo0221/open-editor-platform/tree/3808efe94d2171c9bbf3d635525ccb5bf9a4a8ff/packages/editor-host
+Upstream: https://github.com/ryo0221/open-editor-platform/tree/c5dcc2b70a6e8fc2de1c77e02d9f9855037803dd/packages/editor-host
 
 Package: @editor-platform/editor-host@0.1.0
 

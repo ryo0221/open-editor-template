@@ -19,7 +19,7 @@ import { operationDeclarations, operations } from "./operations";
 export const manifest: Omit<ExtensionManifest, "packageHash"> = {
   contractVersion: CONTRACT_VERSION,
   id: "example.card-editor",
-  version: "0.3.0",
+  version: "0.3.1",
   artifactKind: CARD_ARTIFACT_KIND,
   schemaVersion: CARD_SCHEMA_VERSION,
   capabilities: ["local-edit", "surface", "persistence"],

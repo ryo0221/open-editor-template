@@ -1,5 +1,16 @@
 # 検証記録
 
+## 0.3.1 — 確かめの実行系（DOM・Intl・TextEncoder・crypto が無い所）で読み込める
+
+確認日: 2026-11-22。SDK の固定先を公開 commit `c5dcc2b70a6e8fc2de1c77e02d9f9855037803dd`（open-editor-platform #63）へ移した。この版で editor-core は、`Intl.Segmenter` を読み込みのときに作らず、使うときに作る。これにより、Host が受け入れの前に entry を JS の言語の組込みだけの実行系（QuickJS）で読み込んで `validate` を呼んでも、「確かめられない」にならない。固定先は 39 upstream files（`editor-core/src/graphemes.ts` が加わった）、5 package。`ExtensionDefinition.validate` の説明に、この実行系の約束が入った。
+
+| 検査 | 今回の結果 |
+| --- | --- |
+| `npm run check` | PASS。SDK照合・型検査 |
+| `npx vitest run` | 34 PASS / 0 FAIL / 0 SKIP。DOM・Intl・TextEncoder・crypto を外して、作った entry を読み込み validate する 1 件を含む。この 1 件は前の固定先（3808efe）では落ちる |
+| `npm run build:extension` / `npm run verify:package` | PASS。pin `sha256:d2783ca62d41aab0f0dc19ea2878176f039cf532afc25f9f053ae43d7f33cd94` |
+| `npx playwright test --trace off` | desktop/mobile 計12 PASS（`PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/opt/pw-browsers/chromium`） |
+
 ## 0.3.0 — 最初の中身を作る add-on（create@0-draft）
 
 確認日: 2026-11-21。SDK の固定先を公開 commit `3808efe94d2171c9bbf3d635525ccb5bf9a4a8ff`（open-editor-platform の create add-on の段階 PR）へ移した。38 upstream files（editor-core の閉包に `progress.ts`・`vertical-text.ts` が加わった）、5 package。`definition.create()` はカードの無い文書を返す。
