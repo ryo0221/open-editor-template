@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 import {
   createArtifact,
   MemoryStorage,
@@ -25,8 +25,10 @@ import {
 import { buildExtension } from "../scripts/build-extension.mjs";
 
 let loaded: LoadedExtension<CardDocument>;
+let builtEntry = "";
 beforeAll(async () => {
   const built = await buildExtension({ write: false });
+  builtEntry = Buffer.from(built.files.find((f: { path: string }) => f.path === built.entry).base64, "base64").toString("utf8");
   const verified = await verifyExtensionPackage(
     {
       manifest: built.manifest,
@@ -254,4 +256,21 @@ describe("real local Host lifecycle", () => {
     expect(reopened.editor.content.cards.map((c) => c.id)).toEqual(["new"]);
     reopened.close();
   });
+});
+
+// PaoBub などの Host は、受け入れの前に entry を JS の言語の組込みだけの実行系（QuickJS）で読み込み、validate を呼ぶ。
+// そこには DOM・Intl・TextEncoder・crypto が無いので、読み込みと definition・validate はこれらに触れてはいけない（mount の中では使ってよい）。
+it("loads the built entry and validates without DOM, Intl, TextEncoder or crypto", async () => {
+  for (const name of ["Intl", "TextEncoder", "TextDecoder", "crypto", "document", "window"]) vi.stubGlobal(name, undefined);
+  try {
+    // 末尾の注釈で別の module として読み込む（先に読み込んだ entry を使い回さない）
+    const source = Buffer.from(`${builtEntry}\n// sandbox\n`).toString("base64");
+    const mod = await import(/* @vite-ignore */ `data:text/javascript;base64,${source}`);
+    const definition = mod.definition("sha256:test");
+    const doc = createDocument([{ id: "a", title: "名前", description: "", color: "blue" }]);
+    expect(definition.validate(doc)).toBe(true);
+    expect(definition.validate({ ...doc, schemaVersion: 99 })).toBe(false);
+  } finally {
+    vi.unstubAllGlobals();
+  }
 });

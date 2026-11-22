@@ -2,8 +2,8 @@
   "format": "open-editor-template-vendor-1",
   "source": {
     "repository": "ryo0221/open-editor-platform",
-    "commit": "3808efe94d2171c9bbf3d635525ccb5bf9a4a8ff",
-    "url": "https://github.com/ryo0221/open-editor-platform/tree/3808efe94d2171c9bbf3d635525ccb5bf9a4a8ff"
+    "commit": "c5dcc2b70a6e8fc2de1c77e02d9f9855037803dd",
+    "url": "https://github.com/ryo0221/open-editor-platform/tree/c5dcc2b70a6e8fc2de1c77e02d9f9855037803dd"
   },
   "contractVersion": "1.0.0-draft.1",
   "packages": [
@@ -55,20 +55,6 @@
       "byteLength": 9948
     },
     {
-      "upstreamPath": "docs/legal/NOTICE.ja.md",
-      "path": "docs/legal/NOTICE.ja.md",
-      "gitBlobSha": "1d59cca250bd16a9ff2a157ccc10e90f9d4ab4ae",
-      "sha256": "7c0cfb3ce03e9417bc4fafa1eb4af87e56ae269a8e483d9159f543f303210213",
-      "byteLength": 1567
-    },
-    {
-      "upstreamPath": "docs/third-party/RUNTIME-NOTICES.txt",
-      "path": "docs/third-party/RUNTIME-NOTICES.txt",
-      "gitBlobSha": "0ccd6b92432cb00806fa8a5774d37b30e5a023bd",
-      "sha256": "e2914e0792d3be3d3c888cf8be6044fe5ab956253000d9f4976a2c4b381fa5bb",
-      "byteLength": 344071
-    },
-    {
       "upstreamPath": "DUAL-LICENSING.md",
       "path": "DUAL-LICENSING.md",
       "gitBlobSha": "52548fcd619ba57ee521b889ed8cb9a28807480d",
@@ -97,6 +83,27 @@
       "byteLength": 1279
     },
     {
+      "upstreamPath": "docs/legal/NOTICE.ja.md",
+      "path": "docs/legal/NOTICE.ja.md",
+      "gitBlobSha": "1d59cca250bd16a9ff2a157ccc10e90f9d4ab4ae",
+      "sha256": "7c0cfb3ce03e9417bc4fafa1eb4af87e56ae269a8e483d9159f543f303210213",
+      "byteLength": 1567
+    },
+    {
+      "upstreamPath": "docs/third-party/RUNTIME-NOTICES.txt",
+      "path": "docs/third-party/RUNTIME-NOTICES.txt",
+      "gitBlobSha": "0ccd6b92432cb00806fa8a5774d37b30e5a023bd",
+      "sha256": "e2914e0792d3be3d3c888cf8be6044fe5ab956253000d9f4976a2c4b381fa5bb",
+      "byteLength": 344071
+    },
+    {
+      "upstreamPath": "packages/artifact-core/package.json",
+      "path": "upstream-manifests/artifact-core.json",
+      "gitBlobSha": "78d5f79082224a384efb0e37e59f6d81ceb3b753",
+      "sha256": "435814bf54d43f815b0fae2202104f964c3d31c3f4c504523a0f2565816e4f60",
+      "byteLength": 154
+    },
+    {
       "upstreamPath": "packages/artifact-core/src/index.ts",
       "path": "packages/artifact-core/src/index.ts",
       "gitBlobSha": "bef214a22be31c1249fdbac510b33694511cd0db",
@@ -109,6 +116,13 @@
       "gitBlobSha": "62a40dc301e4885da39654adfe926410f92b42ae",
       "sha256": "d6e642aadc59de1630b8d3bf5a89be3d802e5e7bda89cf81890bb6d9e1b5775e",
       "byteLength": 4531
+    },
+    {
+      "upstreamPath": "packages/editor-core/package.json",
+      "path": "upstream-manifests/editor-core.json",
+      "gitBlobSha": "1514e6c0e7f00ece686f3e52f04ed051b5d56a53",
+      "sha256": "fe43bab4fc8c34a378f3d1896d2e19516bbd1c91d76707fc052d36743dfaad1c",
+      "byteLength": 219
     },
     {
       "upstreamPath": "packages/editor-core/src/arrange.ts",
@@ -139,6 +153,13 @@
       "byteLength": 12188
     },
     {
+      "upstreamPath": "packages/editor-core/src/graphemes.ts",
+      "path": "packages/editor-core/src/graphemes.ts",
+      "gitBlobSha": "0e059333a09dc8909868a8b38459682815ad9bf1",
+      "sha256": "be2e25160aa8ed3a75030434450e591930999789d43841f3ca339471915384e1",
+      "byteLength": 458
+    },
+    {
       "upstreamPath": "packages/editor-core/src/index.ts",
       "path": "packages/editor-core/src/index.ts",
       "gitBlobSha": "bffce56075ab9d600290bdcf89fa0504542ca00d",
@@ -155,9 +176,9 @@
     {
       "upstreamPath": "packages/editor-core/src/japanese-lines.ts",
       "path": "packages/editor-core/src/japanese-lines.ts",
-      "gitBlobSha": "1e2d5f813c1b6d4cca730800e7045a30555c3baf",
-      "sha256": "f523dfcf314e4ccfbe554bd3ec34743ed2eba68673d2f4e43944d0d912826875",
-      "byteLength": 4854
+      "gitBlobSha": "1d48ec4a867368fde7c84857585dd07970899d11",
+      "sha256": "1805489cb9bb0ab626c97ab869296b8ca82fe943bb3c679a3ea6663fd331724e",
+      "byteLength": 4841
     },
     {
       "upstreamPath": "packages/editor-core/src/progress.ts",
@@ -190,9 +211,9 @@
     {
       "upstreamPath": "packages/editor-core/src/vertical-text.ts",
       "path": "packages/editor-core/src/vertical-text.ts",
-      "gitBlobSha": "4af3bd070f23b900f140f14da58cec50c0cf1238",
-      "sha256": "38fe1c5962031731e9dbb191cd1d704b07d15881c9a2676e609641f1a5982d34",
-      "byteLength": 15599
+      "gitBlobSha": "5b100672f311b7107f957fa9bc58b003234538b2",
+      "sha256": "98716a083dd191fa6be182fa2ba883b1e5ea985572775d6fbb5a827d55792127",
+      "byteLength": 15631
     },
     {
       "upstreamPath": "packages/editor-core/src/visual-patch.ts",
@@ -200,6 +221,13 @@
       "gitBlobSha": "e3ebea07e73ea0d160e6ab21f0b3cd42e72e502d",
       "sha256": "a7c7bcebf07e02a7cc47849dd123be2465871377e5fa2f624e67abaf885dcbd8",
       "byteLength": 872
+    },
+    {
+      "upstreamPath": "packages/editor-host/package.json",
+      "path": "upstream-manifests/editor-host.json",
+      "gitBlobSha": "a2f9af88150148e245ddbc2fa30d8a517c6129de",
+      "sha256": "27b0b84d197827238a44803c9425aa25ecece7cceb868d551f645f526b8f251e",
+      "byteLength": 293
     },
     {
       "upstreamPath": "packages/editor-host/src/access.ts",
@@ -244,11 +272,25 @@
       "byteLength": 2335
     },
     {
+      "upstreamPath": "packages/extension-contract/package.json",
+      "path": "upstream-manifests/extension-contract.json",
+      "gitBlobSha": "f6a6203d05b2208a73d7d835a28a4575bc9969ed",
+      "sha256": "d5bacbbe003932bd86eb2d5c7d7e85bf1d3f961299f11990320c0f1f810ffb14",
+      "byteLength": 450
+    },
+    {
       "upstreamPath": "packages/extension-contract/src/index.ts",
       "path": "packages/extension-contract/src/index.ts",
-      "gitBlobSha": "ed7cd723978472a3f3b7c4ea19244c2212f65bfa",
-      "sha256": "be0696d7485789a383f23e41c2291fdcb37785598ed21390d6a4388818f7f260",
-      "byteLength": 4587
+      "gitBlobSha": "897718344be5bd1038452cf0516f68e914afa831",
+      "sha256": "3334e1a15ab8766c409c65e115920a38acd05e2a713c741c1532577cd04bdf22",
+      "byteLength": 4862
+    },
+    {
+      "upstreamPath": "packages/extension-runtime/package.json",
+      "path": "upstream-manifests/extension-runtime.json",
+      "gitBlobSha": "92b28d4cd209d19c95139d90a4c65c5d3fd10b89",
+      "sha256": "e08b531d6dd2a4f4026969739c3dd02381fd342bbb8fc404b28f3b89f930f667",
+      "byteLength": 860
     },
     {
       "upstreamPath": "packages/extension-runtime/src/editor-host.ts",
@@ -277,41 +319,6 @@
       "gitBlobSha": "b264b9c1cff9bee9dcbf264b6093995236cf7ef8",
       "sha256": "1a182c3461d1813251d4cb668f5f084f0b51e401b4917143d18b1872bd8e18fc",
       "byteLength": 9794
-    },
-    {
-      "upstreamPath": "packages/artifact-core/package.json",
-      "path": "upstream-manifests/artifact-core.json",
-      "gitBlobSha": "78d5f79082224a384efb0e37e59f6d81ceb3b753",
-      "sha256": "435814bf54d43f815b0fae2202104f964c3d31c3f4c504523a0f2565816e4f60",
-      "byteLength": 154
-    },
-    {
-      "upstreamPath": "packages/editor-core/package.json",
-      "path": "upstream-manifests/editor-core.json",
-      "gitBlobSha": "1514e6c0e7f00ece686f3e52f04ed051b5d56a53",
-      "sha256": "fe43bab4fc8c34a378f3d1896d2e19516bbd1c91d76707fc052d36743dfaad1c",
-      "byteLength": 219
-    },
-    {
-      "upstreamPath": "packages/extension-contract/package.json",
-      "path": "upstream-manifests/extension-contract.json",
-      "gitBlobSha": "f6a6203d05b2208a73d7d835a28a4575bc9969ed",
-      "sha256": "d5bacbbe003932bd86eb2d5c7d7e85bf1d3f961299f11990320c0f1f810ffb14",
-      "byteLength": 450
-    },
-    {
-      "upstreamPath": "packages/editor-host/package.json",
-      "path": "upstream-manifests/editor-host.json",
-      "gitBlobSha": "a2f9af88150148e245ddbc2fa30d8a517c6129de",
-      "sha256": "27b0b84d197827238a44803c9425aa25ecece7cceb868d551f645f526b8f251e",
-      "byteLength": 293
-    },
-    {
-      "upstreamPath": "packages/extension-runtime/package.json",
-      "path": "upstream-manifests/extension-runtime.json",
-      "gitBlobSha": "92b28d4cd209d19c95139d90a4c65c5d3fd10b89",
-      "sha256": "e08b531d6dd2a4f4026969739c3dd02381fd342bbb8fc404b28f3b89f930f667",
-      "byteLength": 860
     }
   ]
 }
