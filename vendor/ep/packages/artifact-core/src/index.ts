@@ -35,7 +35,10 @@ export interface Provenance {
     targetReaderPin?: string;
     converterPin?: string;
   };
-  template?: { id: string; version: number; hash: string; requestId: string; fingerprint: string };
+  template?: { id: string; version: number; hash: string } & (
+    | { requestId: string; fingerprint: string }
+    | { requestId?: never; fingerprint?: never }
+  );
   source: 'created' | 'imported';
   officeImport?: {
     requestId: string;
@@ -214,6 +217,11 @@ export async function commitVersion<T>(
 export function serializeArtifact<T>(artifact: Artifact<T>): string {
   return JSON.stringify(artifact, null, 2);
 }
+export class DuplicateArtifactVersionError extends Error {
+  constructor(readonly artifactId: ArtifactId) {
+    super('Duplicate artifact version ID');
+  }
+}
 export function deserializeArtifact(text: string): Artifact<unknown> {
   const value: unknown = JSON.parse(text);
   if (!value || typeof value !== 'object') throw new Error('Expected an artifact object');
@@ -228,7 +236,8 @@ export function deserializeArtifact(text: string): Artifact<unknown> {
     !Array.isArray(a.versions)
   )
     throw new Error('Unsupported or invalid artifact envelope');
-  for (const v of a.versions)
+  const versionIds = new Set<string>();
+  for (const v of a.versions) {
     if (
       !v ||
       v.artifactId !== a.id ||
@@ -238,6 +247,9 @@ export function deserializeArtifact(text: string): Artifact<unknown> {
       typeof v.contentHash !== 'string'
     )
       throw new Error('Invalid artifact version');
+    if (versionIds.has(v.versionId)) throw new DuplicateArtifactVersionError(a.id);
+    versionIds.add(v.versionId);
+  }
   return clone(a as Artifact<unknown>);
 }
 export interface StorageAdapter<T extends { id: string }> {
@@ -284,7 +296,10 @@ export interface OutOfLineParts<T> {
   split(value: T): { stub: T; parts: Map<string, unknown> };
   /** The parts the stub names. */
   keys(stub: T): string[];
-  /** The record again; a part that is missing is not in the map. */
+  /**
+   * The record again; a part that is missing is not in the map. Called for every stored record,
+   * with an empty map when it names no parts.
+   */
   join(stub: T, parts: Map<string, unknown>): T;
 }
 const partsStore = 'parts';
@@ -352,7 +367,10 @@ export class IndexedDBStorage<T extends { id: string }> implements StorageAdapte
   private async joined(stubs: T[]): Promise<T[]> {
     if (!this.outOfLine || !this.partsDb) return stubs;
     const wanted = stubs.map((stub) => this.outOfLine!.keys(stub));
-    if (!wanted.some((keys) => keys.length)) return stubs;
+    // Every stub is joined, one without parts too: `split` may have changed more than the parts
+    // it took out (an escaped string), and `join` restores it.
+    if (!wanted.some((keys) => keys.length))
+      return stubs.map((stub) => this.outOfLine!.join(stub, new Map()));
     const tx = (await this.partsDb).transaction(partsStore, 'readonly');
     const store = tx.objectStore(partsStore);
     const found = stubs.map(() => new Map<string, unknown>());
@@ -365,9 +383,7 @@ export class IndexedDBStorage<T extends { id: string }> implements StorageAdapte
       }
     });
     await done(tx);
-    return stubs.map((stub, i) =>
-      wanted[i]!.length ? this.outOfLine!.join(stub, found[i]!) : stub,
-    );
+    return stubs.map((stub, i) => this.outOfLine!.join(stub, found[i]!));
   }
   /** Writes the parts of these records that are not stored yet; returns their stubs. */
   private async writeParts(values: T[]): Promise<T[]> {

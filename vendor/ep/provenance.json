@@ -2,8 +2,8 @@
   "format": "open-editor-template-vendor-1",
   "source": {
     "repository": "ryo0221/open-editor-platform",
-    "commit": "44fb3e10744fd63967aaa3d3a321936cf4af862c",
-    "url": "https://github.com/ryo0221/open-editor-platform/tree/44fb3e10744fd63967aaa3d3a321936cf4af862c"
+    "commit": "3808efe94d2171c9bbf3d635525ccb5bf9a4a8ff",
+    "url": "https://github.com/ryo0221/open-editor-platform/tree/3808efe94d2171c9bbf3d635525ccb5bf9a4a8ff"
   },
   "contractVersion": "1.0.0-draft.1",
   "packages": [
@@ -99,9 +99,9 @@
     {
       "upstreamPath": "packages/artifact-core/src/index.ts",
       "path": "packages/artifact-core/src/index.ts",
-      "gitBlobSha": "8a8f2cc292766659956bd1bdbf42172ed836a4b6",
-      "sha256": "41d9d0ae553b62bf540973edbd28e9001d20f006bfd40a1db3583b8aada3a218",
-      "byteLength": 21380
+      "gitBlobSha": "bef214a22be31c1249fdbac510b33694511cd0db",
+      "sha256": "87bff47d577215dfacf4f52894b3315415a0a2e87a8e99a38c2fa610c3d81354",
+      "byteLength": 22035
     },
     {
       "upstreamPath": "packages/artifact-core/src/proposal-reads.ts",
@@ -127,9 +127,9 @@
     {
       "upstreamPath": "packages/editor-core/src/drawing.ts",
       "path": "packages/editor-core/src/drawing.ts",
-      "gitBlobSha": "1ab7c252821aff595171b02d388d648e789b96e3",
-      "sha256": "834e54788a548c155d4be138449eb69401efb98a3fc27f95ce0c7863c030feeb",
-      "byteLength": 34101
+      "gitBlobSha": "d60df44750809351ab0b6939cf01db78450ead51",
+      "sha256": "d6d5871ef1aaad8f8abacecf6416e06ba0870685db83802d864f6a20c3215949",
+      "byteLength": 44685
     },
     {
       "upstreamPath": "packages/editor-core/src/geometry.ts",
@@ -141,9 +141,9 @@
     {
       "upstreamPath": "packages/editor-core/src/index.ts",
       "path": "packages/editor-core/src/index.ts",
-      "gitBlobSha": "20170be239ca21efcf314111b9dabd09ff22025f",
-      "sha256": "c482277bac3bcf7fa35fa40f10f62385767ed73d2d786b0483ec8c1b3e124687",
-      "byteLength": 13812
+      "gitBlobSha": "bffce56075ab9d600290bdcf89fa0504542ca00d",
+      "sha256": "37cdf8fd0cc5d59cb6cb6a40fa67f8f894d75c379b2eb036c990c8337cbe9844",
+      "byteLength": 13873
     },
     {
       "upstreamPath": "packages/editor-core/src/inputs.ts",
@@ -158,6 +158,13 @@
       "gitBlobSha": "1e2d5f813c1b6d4cca730800e7045a30555c3baf",
       "sha256": "f523dfcf314e4ccfbe554bd3ec34743ed2eba68673d2f4e43944d0d912826875",
       "byteLength": 4854
+    },
+    {
+      "upstreamPath": "packages/editor-core/src/progress.ts",
+      "path": "packages/editor-core/src/progress.ts",
+      "gitBlobSha": "0de718f1d43f7cb5edae9d82c7bd0ef3c0231928",
+      "sha256": "52d6c0c15b7a94e8364b184fe106b4da514f50b69b039eddc9e243c8e21b0667",
+      "byteLength": 3024
     },
     {
       "upstreamPath": "packages/editor-core/src/proposal-review.ts",
@@ -176,9 +183,16 @@
     {
       "upstreamPath": "packages/editor-core/src/validation.ts",
       "path": "packages/editor-core/src/validation.ts",
-      "gitBlobSha": "c43791ec3d57b69f70a6b8a0858815fedcaf901a",
-      "sha256": "509d66ce4f131d2d659964bb65584551f9be126be3e491e26c318cc0c1d424a1",
-      "byteLength": 3026
+      "gitBlobSha": "de69187160808dd20b5b1f6196e84d231d37db37",
+      "sha256": "3c264cdbcf344a52450a2300a8eb10c269237ea1875fa18dc4448d290c2a37f6",
+      "byteLength": 3122
+    },
+    {
+      "upstreamPath": "packages/editor-core/src/vertical-text.ts",
+      "path": "packages/editor-core/src/vertical-text.ts",
+      "gitBlobSha": "4af3bd070f23b900f140f14da58cec50c0cf1238",
+      "sha256": "38fe1c5962031731e9dbb191cd1d704b07d15881c9a2676e609641f1a5982d34",
+      "byteLength": 15599
     },
     {
       "upstreamPath": "packages/editor-core/src/visual-patch.ts",
@@ -197,9 +211,9 @@
     {
       "upstreamPath": "packages/editor-host/src/index.ts",
       "path": "packages/editor-host/src/index.ts",
-      "gitBlobSha": "af24d9999b215560872c6df3133b95d9a8a9b965",
-      "sha256": "b0c6a8e00168025a6d013c85d183047af56a44c77bfe251939b80c055b3dc645",
-      "byteLength": 36281
+      "gitBlobSha": "1e3acc992897125a6a1e5d3264515c6b5385cbe0",
+      "sha256": "9c8e4f0145d8ce1f7e6381bb8cc94b235d6658ee1ceb1ec07b03a194d38bc52a",
+      "byteLength": 36767
     },
     {
       "upstreamPath": "packages/editor-host/src/native-access.ts",
@@ -232,9 +246,9 @@
     {
       "upstreamPath": "packages/extension-contract/src/index.ts",
       "path": "packages/extension-contract/src/index.ts",
-      "gitBlobSha": "2667785193c8f6793214c422b779b6cc9bf4c51c",
-      "sha256": "966386e07dc263350270074861f8df50d647bd1cb73fb2a2aaa4e8c5b874640c",
-      "byteLength": 3961
+      "gitBlobSha": "ed7cd723978472a3f3b7c4ea19244c2212f65bfa",
+      "sha256": "be0696d7485789a383f23e41c2291fdcb37785598ed21390d6a4388818f7f260",
+      "byteLength": 4587
     },
     {
       "upstreamPath": "packages/extension-runtime/src/editor-host.ts",
@@ -246,23 +260,23 @@
     {
       "upstreamPath": "packages/extension-runtime/src/index.ts",
       "path": "packages/extension-runtime/src/index.ts",
-      "gitBlobSha": "617e6d67ef29ef67047a4d6d98258416c15527ad",
-      "sha256": "edc518175917e25bdba7ea80260265b7827e5657e3ce1dfe5c283a0ae3d0d33c",
-      "byteLength": 15966
+      "gitBlobSha": "91bea52ca15c86d3f91be86cb6d395bb5764927d",
+      "sha256": "c6eb8a88b4ae5ad8a675941e982a9e6a570738ab2a21ce0c6c39f5d9819e4048",
+      "byteLength": 16927
     },
     {
       "upstreamPath": "packages/extension-runtime/src/operations.ts",
       "path": "packages/extension-runtime/src/operations.ts",
-      "gitBlobSha": "92e1542ddb798fbbd727114f3824f6973c158c0c",
-      "sha256": "e4432c30ea838610093070eb35b4473f5fdd7badb6f934c2f6d1b92d48fba0f0",
-      "byteLength": 11348
+      "gitBlobSha": "dbb993b69789fb0049dff2a40507f3c647f9b9b8",
+      "sha256": "9208cf2d3d992c404dc0037e6f867c2c756a15e6d29006f0efc2bec7893bc64a",
+      "byteLength": 11800
     },
     {
       "upstreamPath": "packages/extension-runtime/src/package.ts",
       "path": "packages/extension-runtime/src/package.ts",
-      "gitBlobSha": "746993c0743df5562da1c8c29cdb329e6ef50cbd",
-      "sha256": "ec57c7b1d32540db5655a640e7c4d1c970deb50a03e829ce36a6928a70c9b7af",
-      "byteLength": 9601
+      "gitBlobSha": "b264b9c1cff9bee9dcbf264b6093995236cf7ef8",
+      "sha256": "1a182c3461d1813251d4cb668f5f084f0b51e401b4917143d18b1872bd8e18fc",
+      "byteLength": 9794
     },
     {
       "upstreamPath": "packages/artifact-core/package.json",
@@ -279,18 +293,18 @@
       "byteLength": 219
     },
     {
-      "upstreamPath": "packages/editor-host/package.json",
-      "path": "upstream-manifests/editor-host.json",
-      "gitBlobSha": "a2f9af88150148e245ddbc2fa30d8a517c6129de",
-      "sha256": "27b0b84d197827238a44803c9425aa25ecece7cceb868d551f645f526b8f251e",
-      "byteLength": 293
-    },
-    {
       "upstreamPath": "packages/extension-contract/package.json",
       "path": "upstream-manifests/extension-contract.json",
       "gitBlobSha": "f6a6203d05b2208a73d7d835a28a4575bc9969ed",
       "sha256": "d5bacbbe003932bd86eb2d5c7d7e85bf1d3f961299f11990320c0f1f810ffb14",
       "byteLength": 450
+    },
+    {
+      "upstreamPath": "packages/editor-host/package.json",
+      "path": "upstream-manifests/editor-host.json",
+      "gitBlobSha": "a2f9af88150148e245ddbc2fa30d8a517c6129de",
+      "sha256": "27b0b84d197827238a44803c9425aa25ecece7cceb868d551f645f526b8f251e",
+      "byteLength": 293
     },
     {
       "upstreamPath": "packages/extension-runtime/package.json",

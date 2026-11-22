@@ -28,7 +28,7 @@
     "@editor-platform/editor-host": "file:../editor-host"
   },
   "openEditorTemplateVendor": {
-    "sourceCommit": "44fb3e10744fd63967aaa3d3a321936cf4af862c",
+    "sourceCommit": "3808efe94d2171c9bbf3d635525ccb5bf9a4a8ff",
     "packagingModified": "2026-11-16",
     "originalManifest": "../../upstream-manifests/extension-runtime.json"
   }

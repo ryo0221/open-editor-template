@@ -1,5 +1,19 @@
 # 検証記録
 
+## 0.3.0 — 最初の中身を作る add-on（create@0-draft）
+
+確認日: 2026-11-21。SDK の固定先を公開 commit `3808efe94d2171c9bbf3d635525ccb5bf9a4a8ff`（open-editor-platform の create add-on の段階 PR）へ移した。38 upstream files（editor-core の閉包に `progress.ts`・`vertical-text.ts` が加わった）、5 package。`definition.create()` はカードの無い文書を返す。
+
+| 検査 | 今回の結果 |
+| --- | --- |
+| `npm run check` | PASS。SDK照合・型検査 |
+| `npx vitest run` | 33 PASS / 0 FAIL / 0 SKIP（create の1件を含む） |
+| `npm run build:extension` / `npm run verify:package` | PASS。pin `sha256:f858a386bb6b8414e2b4f450e4f3666b78c6572a5a0259ce94b12241cccad218` |
+| `npx playwright test --trace off` | desktop/mobile 計12 PASS（`PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/opt/pw-browsers/chromium`） |
+| 実 PaoBub 4ケース・「新しく作る」 | NOT RUN。PaoBub 側の対応は別の PR |
+
+この add-on を知らない旧 Host の runtime は package を登録しないため、配布版を 0.3.0 に上げた。
+
 ## 0.2.1 — 公開切替後の SDK 固定先更新（ローカル候補）
 
 確認日: 2026-11-19。template main `ba1dcfecb9124e9c39a644b0e9230972dd0fd1a7` のテキスト全件を Git blob hash で照合した隔離コピーを使用。履歴記録の PNG 2 件は未取得で、完全な remote tree の clone ではない。実行環境は Node.js 24.19.0 / npm 11.9.0 / Chromium 151.0.7922.173。
