@@ -27,6 +27,10 @@ npm run dev
 
 「動作を確認する」パネルでは、読み取り専用への切り替えと保存エラーの再現も試せます。保存に失敗した変更は未保存のまま残り、設定を解除して同じ保存経路から再試行できます。
 
+## カードを共同編集する
+
+共有配布版は `npm run build:shared` で作れます。OEP の参照 Host に接続すると、複数人でのカード編集、ポインター表示、本人の Undo/Redo、共有の下書きの保存を試せます。[参照 Host の起動手順](docs/compatibility.md#カードの共同編集)
+
 ## 最初に触る3ファイル
 
 | ファイル | 変えるもの |
@@ -134,7 +138,7 @@ npm run test:e2e
 このテンプレートは次の公開ソースを固定しています。
 
 - 公開リポジトリ：`ryo0221/open-editor-platform`
-- commit：`c5dcc2b70a6e8fc2de1c77e02d9f9855037803dd`
+- commit：`bbc105e1ddc0af723302424c92be38208a636423`
 - root契約：`1.0.0-draft.1`
 - 操作提案のadd-on：`operations@0-draft`
 - 最初の中身を作るadd-on：`create@0-draft`（カードの無い文書を返す。Hostがまだ無い成果物を作るときに使う）

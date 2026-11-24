@@ -221,3 +221,12 @@
     padding: 20px;
   }
 }
+
+.ep-card { position: relative; }
+.ep-shared-pointer {
+  position: absolute;
+  pointer-events: none;
+  color: #691ba8;
+  font-weight: bold;
+  text-shadow: 0 0 2px white;
+}

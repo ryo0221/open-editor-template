@@ -5,7 +5,7 @@
 このテンプレートは、公開リポジトリ`ryo0221/open-editor-platform`の次のcommitを使います。
 
 ```text
-c5dcc2b70a6e8fc2de1c77e02d9f9855037803dd
+bbc105e1ddc0af723302424c92be38208a636423
 ```
 
 | 項目 | 対応するもの |
@@ -29,7 +29,23 @@ PaoBub用の出力形式の基準と、実接続の検証対象は`ryo0221/paobu
 
 これは検証対象を特定する情報です。実PaoBubで行った検証の範囲・結果は[検証記録](verification.md)、登録・利用の手順は[PaoBub連携ガイド](paobub.md)を参照してください。
 
-このサンプルは読み書きに必要な最小の権限を宣言し、選択権限を要求しません。draft.2、controlled surface、schema実験、共同編集、Communityへの登録、実AI呼び出しへの対応は含みません。
+このサンプルは読み書きに必要な最小の権限を宣言し、選択権限を要求しません。draft.2、controlled surface、schema実験、Communityへの登録、実AI呼び出しへの対応は含みません。
+
+## カードの共同編集
+
+`npm run build:shared` は `dist/shared` に `example.card-editor@0.4.0-draft.1` を生成します。protocol 2 の Host が `collaboration@0-draft` を読み、UI と codec の pin を個別に照合します。カードの native schema は 2 です。旧 Host 向けの配布は従来の `npm run build:extension` を使います。
+
+OEP の参照 Host で試すには、テンプレートと固定版の OEP を同じ親ディレクトリに置き、それぞれで `npm ci` を実行します。テンプレート側で共有配布版を作り、OEP 側で次を実行します。
+
+```sh
+npm run collaboration:external -- \
+  ../open-editor-template/dist/shared/package.json \
+  ../open-editor-template/dist/shared/pins.json \
+  ../open-editor-template/fixtures/example.json \
+  /tmp/cards-reference.sqlite
+```
+
+表示されたアドレスを2つのブラウザーで開きます。受領した配布物を使う場合は、Host の管理者が確認した pin を指定します。テンプレート側のブラウザー試験は `OEP_ROOT=/path/to/open-editor-platform npm run test:shared` です。
 
 ## 5つのpackageを同梱する理由
 
