@@ -5,7 +5,7 @@
 このテンプレートは、公開リポジトリ`ryo0221/open-editor-platform`の次のcommitを使います。
 
 ```text
-297d261486bff1e7cb3831df3207303cacdd46c0
+a00e922d24b6ed82834e0b6bc8b560ff971538ca
 ```
 
 | 項目 | 対応するもの |

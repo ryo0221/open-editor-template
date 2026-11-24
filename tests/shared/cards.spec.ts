@@ -49,6 +49,10 @@ test('2人のカード編集、本人の Undo、再読み込み後の Redo と�
     await a.getByText('元に戻す', { exact: true }).click();
     await expect(cards(b).nth(0)).not.toContainText('Aの変更');
     await expect(cards(a).nth(1)).toContainText('Bの変更');
+    const devtools = await a.context().newCDPSession(a);
+    await devtools.send('ServiceWorker.enable');
+    await devtools.send('ServiceWorker.stopAllWorkers');
+    await devtools.detach();
     await a.reload();
     await expect(a.locator('#redo')).toBeEnabled();
     await a.locator('#redo').click();

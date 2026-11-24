@@ -1,6 +1,6 @@
 # Open Editor Platform source notice
 
-Upstream: https://github.com/ryo0221/open-editor-platform/tree/297d261486bff1e7cb3831df3207303cacdd46c0/packages/extension-contract
+Upstream: https://github.com/ryo0221/open-editor-platform/tree/a00e922d24b6ed82834e0b6bc8b560ff971538ca/packages/extension-contract
 
 Package: @editor-platform/extension-contract@0.0.0-draft.1
 

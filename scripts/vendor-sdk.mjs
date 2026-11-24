@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const vendor = path.join(root, 'vendor/ep');
-const pin = '297d261486bff1e7cb3831df3207303cacdd46c0';
+const pin = 'a00e922d24b6ed82834e0b6bc8b560ff971538ca';
 const repository = 'ryo0221/open-editor-platform';
 const lock = JSON.parse(await readFile(path.join(vendor, 'provenance.json'), 'utf8'));
 if (
