@@ -33,7 +33,7 @@
 
 ## 同梱SDK
 
-`vendor/ep/`は公開commit `a00e922d24b6ed82834e0b6bc8b560ff971538ca`から固定した5つのpackageのソース。通常のEditor変更で直接修正しない。importは各packageが公開するentrypointを使い、`src/`へのdeep importや私有リポジトリへの依存を追加しない。
+`vendor/ep/`は公開commit `ab9b748563e1abc260fb9015bcdab460de28f987`から固定した5つのpackageのソース。通常のEditor変更で直接修正しない。importは各packageが公開するentrypointを使い、`src/`へのdeep importや私有リポジトリへの依存を追加しない。
 
 SDK更新が必要なら、公開upstreamの対象版・契約・必要ファイルを確認し、pinとprovenanceを伴う更新として扱う。`node scripts/vendor-sdk.mjs --check`を通すためにhashだけを合わせる変更はしない。`--restore`は同じ固定版の復元であり、upstream追従機能ではない。
 
