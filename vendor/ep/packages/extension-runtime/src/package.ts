@@ -99,6 +99,13 @@ export async function describeExtensionPackage(input: ExtensionPackage) {
   const records = [];
   for (const file of files)
     records.push({ path: file.path, byteLength: file.bytes.length, sha256: await sha(file.bytes) });
+  const shared = manifest.addons?.collaboration;
+  if (
+    shared &&
+    (shared.entry === metadata.entry ||
+      records.find((file) => file.path === shared.entry)?.sha256 !== shared.sha256.slice(7))
+  )
+    throw Error('Invalid shared codec entry or hash');
   const descriptor: PackageDescriptor = {
     format: PACKAGE_DESCRIPTOR_FORMAT,
     manifest,
@@ -132,6 +139,28 @@ export async function verifyExtensionPackage(
       if (!file) throw Error('Missing package file');
       return Uint8Array.from(file.bytes);
     },
+  });
+}
+
+/** The authority has its own revocable admission, separate from the UI package pin. */
+export function admittedCodec(verified: VerifiedPackage, lookupCodec: PackagePinLookup) {
+  const { manifest } = verified;
+  const declaration = manifest.addons?.collaboration;
+  if (!declaration) throw Error('Shared editing is unavailable');
+  const assertTrusted = () => {
+    verified.assertTrusted();
+    if (lookupCodec(manifest.id, manifest.version) !== declaration.sha256)
+      throw Error('Untrusted shared codec');
+  };
+  assertTrusted();
+  return Object.freeze({
+    assertTrusted,
+    read() {
+      assertTrusted();
+      return verified.readFile(declaration.entry);
+    },
+    domain: `ext:${manifest.id}` as const,
+    declaration,
   });
 }
 
@@ -173,10 +202,22 @@ export async function loadVerifiedExtension<T>(
   const validate = returned.validate,
     mount = returned.mount,
     ops = returned.operations,
-    create = returned.create;
+    create = returned.create,
+    refs = returned.references;
   if (typeof validate !== 'function') throw Error('Missing domain validator');
   if (mount !== undefined && typeof mount !== 'function') throw Error('Invalid surface adapter');
   if (create !== undefined && typeof create !== 'function') throw Error('Invalid create adapter');
+  let references: ExtensionDefinition<T>['references'];
+  if (refs !== undefined) {
+    const list = refs?.list,
+      resolve = refs?.resolve;
+    if (typeof list !== 'function' || typeof resolve !== 'function')
+      throw Error('Invalid references adapter');
+    references = Object.freeze({
+      list: (...args: Parameters<typeof list>) => list.apply(refs, args),
+      resolve: (...args: Parameters<typeof resolve>) => resolve.apply(refs, args),
+    });
+  }
   let operations: ExtensionDefinition<T>['operations'];
   if (ops !== undefined) {
     const checkInput = ops?.checkInput,
@@ -193,6 +234,7 @@ export async function loadVerifiedExtension<T>(
     validate,
     ...(mount ? { mount } : {}),
     ...(operations ? { operations } : {}),
+    ...(references ? { references } : {}),
     ...(create ? { create: () => create.call(returned) } : {}),
   });
   const loaded: LoadedExtension<T> = Object.freeze({

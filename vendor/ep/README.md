@@ -1,6 +1,6 @@
 # Vendored public Editor Platform SDK
 
-Source: [ryo0221/open-editor-platform@c5dcc2b](https://github.com/ryo0221/open-editor-platform/tree/c5dcc2b70a6e8fc2de1c77e02d9f9855037803dd).
+Source: [ryo0221/open-editor-platform@ab9b748](https://github.com/ryo0221/open-editor-platform/tree/ab9b748563e1abc260fb9015bcdab460de28f987).
 Runtime contract: 1.0.0-draft.1.
 
 These are actual unchanged upstream TypeScript implementations. The five packages
@@ -12,7 +12,7 @@ the TypeScript; these are not precompiled packages for direct Node.js imports.
 | Package | Included public entrypoints |
 | --- | --- |
 | @editor-platform/artifact-core | . |
-| @editor-platform/editor-core | . |
+| @editor-platform/editor-core | ., ./keep-highest |
 | @editor-platform/extension-contract | . |
 | @editor-platform/editor-host | . |
 | @editor-platform/extension-runtime | ., ./package, ./editor-host, ./operations |

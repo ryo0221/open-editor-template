@@ -6,7 +6,7 @@ import { exportPaobubBuild } from './export-paobub.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 
-const inlineCss = {
+export const inlineCss = {
   name: 'editor-inline-css',
   setup(builder) {
     builder.onResolve({ filter: /\.css\?inline$/ }, (args) => ({

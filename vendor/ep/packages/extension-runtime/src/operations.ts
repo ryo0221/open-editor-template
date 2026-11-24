@@ -1,14 +1,19 @@
 /**
  * Data-only checks for the optional `operations@0-draft` add-on (and the manifest shape of
- * `create@0-draft`). Nothing here runs package code,
+ * `create@0-draft` and `history@0-draft`). Nothing here runs package code,
  * so a Host server can check a provider's proposal against a frozen declaration before any
  * browser loads the package. Limits bound the declaration (manifest complexity) separately from
  * one input (provider output).
  */
 import { canonicalJson } from '@editor-platform/artifact-core';
+import { keepHighestProblems } from '@editor-platform/editor-core/keep-highest';
+import { itemsDeclarationProblems } from './items';
 import {
+  COLLABORATION_ADDON,
   CREATE_ADDON,
   OPERATIONS_ADDON,
+  REFERENCES_ADDON,
+  HISTORY_ADDON,
   type ManifestAddons,
   type OperationDeclaration,
   type OperationSchema,
@@ -188,13 +193,61 @@ export function operationDeclarationProblems(addon: unknown): string[] {
 
 /** Checked, frozen copy of manifest add-ons. Throws with the first problem. */
 export function parseAddons(input: unknown): ManifestAddons {
-  if (!plain(input) || Object.keys(input).some((k) => k !== 'operations' && k !== 'create'))
+  if (
+    !plain(input) ||
+    Object.keys(input).some(
+      (k) =>
+        k !== 'operations' &&
+        k !== 'create' &&
+        k !== 'collaboration' &&
+        k !== 'references' &&
+        k !== 'history' &&
+        k !== 'items',
+    )
+  )
     throw new Error('Unsupported add-ons');
-  if (input.operations === undefined && input.create === undefined)
+  if (
+    input.operations === undefined &&
+    input.create === undefined &&
+    input.references === undefined &&
+    input.history === undefined &&
+    input.items === undefined
+  )
     throw new Error('Unsupported add-ons');
   if (input.operations !== undefined) {
     const problems = operationDeclarationProblems(input.operations);
     if (problems.length) throw new Error(`Invalid operations add-on: ${problems[0]}`);
+  }
+  if (input.collaboration !== undefined) {
+    const shared = input.collaboration;
+    if (
+      !plain(shared) ||
+      shared.version !== COLLABORATION_ADDON ||
+      Object.keys(shared).some((k) => !['version', 'entry', 'sha256', 'operations'].includes(k)) ||
+      typeof shared.entry !== 'string' ||
+      shared.entry.length > 200 ||
+      !/^(?:[a-zA-Z0-9_-]+\/)*[a-zA-Z0-9_-]+\.(?:mjs|js)$/.test(shared.entry) ||
+      typeof shared.sha256 !== 'string' ||
+      !/^sha256:[a-f0-9]{64}$/.test(shared.sha256) ||
+      !Array.isArray(shared.operations) ||
+      !shared.operations.length ||
+      shared.operations.length > OPERATION_LIMITS.operations ||
+      !input.operations
+    )
+      throw new Error('Invalid collaboration declaration');
+    const { declarations } = input.operations as NonNullable<ManifestAddons['operations']>;
+    const seen = new Set<string>();
+    for (const ref of shared.operations) {
+      if (
+        !plain(ref) ||
+        Object.keys(ref).length !== 2 ||
+        typeof ref.id !== 'string' ||
+        seen.has(ref.id) ||
+        !declarations.some((d) => d.id === ref.id && d.version === ref.version)
+      )
+        throw new Error('Invalid shared operation reference');
+      seen.add(ref.id);
+    }
   }
   // `create@0-draft` carries no data besides its exact version token.
   if (
@@ -204,6 +257,29 @@ export function parseAddons(input: unknown): ManifestAddons {
       input.create.version !== CREATE_ADDON)
   )
     throw new Error('Unsupported create add-on');
+  if (
+    input.references !== undefined &&
+    (!plain(input.references) ||
+      Object.keys(input.references).length !== 1 ||
+      input.references.version !== REFERENCES_ADDON)
+  )
+    throw new Error('Unsupported references add-on');
+  // `history@0-draft` is data only: its version and the places whose numbers Undo never lowers.
+  if (input.history !== undefined) {
+    const h = input.history;
+    if (
+      !plain(h) ||
+      Object.keys(h).some((k) => k !== 'version' && k !== 'keepHighest') ||
+      h.version !== HISTORY_ADDON
+    )
+      throw new Error('Unsupported history add-on');
+    const problems = keepHighestProblems(h.keepHighest);
+    if (problems.length) throw new Error(`Invalid history add-on: ${problems[0]}`);
+  }
+  if (input.items !== undefined) {
+    const problems = itemsDeclarationProblems(input.items);
+    if (problems.length) throw new Error(`Invalid items add-on: ${problems[0]}`);
+  }
   const copy = JSON.parse(canonicalJson(input)) as ManifestAddons;
   return deepFreeze(copy);
 }

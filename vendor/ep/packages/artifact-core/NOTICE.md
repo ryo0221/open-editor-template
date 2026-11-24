@@ -1,13 +1,13 @@
 # Open Editor Platform source notice
 
-Upstream: https://github.com/ryo0221/open-editor-platform/tree/c5dcc2b70a6e8fc2de1c77e02d9f9855037803dd/packages/artifact-core
+Upstream: https://github.com/ryo0221/open-editor-platform/tree/ab9b748563e1abc260fb9015bcdab460de28f987/packages/artifact-core
 
 Package: @editor-platform/artifact-core@0.1.0
 
 Source in src/ is copied byte for byte from the public commit above. The unmodified
 GNU AGPLv3 text is in LICENSE. The upstream release declares AGPL-3.0-only.
 
-Packaging modifications by Open Editor Template on 2026-11-16: package.json exposes
+Packaging modifications by Open Editor Template on 2026-11-24: package.json exposes
 only the reviewed public entrypoints, replaces wildcard dependencies with sibling
 file dependencies, removes development dependencies, and adds license/provenance
 metadata. No upstream implementation was changed.

@@ -29,45 +29,63 @@ function copyPatch(patch: CardPatch): CardPatch {
   return { ...patch };
 }
 
+export function applyAddCard(content: CardDocument, addition: Card): CardDocument {
+  createDocument([addition]);
+  validateDocument(content);
+  if (content.cards.some((current) => current.id === addition.id))
+    throw new Error(`カードID「${addition.id}」は既に使われています。`);
+  const next = { ...content, cards: [...content.cards, { ...addition }] };
+  validateDocument(next);
+  return next;
+}
+
 export function addCard(card: Card): EditorCommand<CardDocument> {
   const addition = createDocument([card]).cards[0];
   return {
-    ...command<CardDocument>('cards.add', 'カードを追加', (content) => {
-      validateDocument(content);
-      if (content.cards.some((current) => current.id === addition.id))
-        throw new Error(`カードID「${addition.id}」は既に使われています。`);
-      const next = { ...content, cards: [...content.cards, { ...addition }] };
-      validateDocument(next);
-      return next;
-    }),
+    ...command<CardDocument>('cards.add', 'カードを追加', (content) =>
+      applyAddCard(content, addition),
+    ),
     readonlyInput: true,
   };
+}
+
+export function applyUpdateCard(
+  content: CardDocument,
+  id: string,
+  change: CardPatch,
+): CardDocument {
+  copyPatch(change);
+  const index = indexOfCard(content, id);
+  const next = {
+    ...content,
+    cards: content.cards.map((card, current) =>
+      current === index ? { ...card, ...change } : card,
+    ),
+  };
+  validateDocument(next);
+  return next;
 }
 
 export function updateCard(id: string, patch: CardPatch): EditorCommand<CardDocument> {
   const change = copyPatch(patch);
   return {
-    ...command<CardDocument>('cards.update', 'カードを編集', (content) => {
-      const index = indexOfCard(content, id);
-      const next = {
-        ...content,
-        cards: content.cards.map((card, current) =>
-          current === index ? { ...card, ...change } : card,
-        ),
-      };
-      validateDocument(next);
-      return next;
-    }),
+    ...command<CardDocument>('cards.update', 'カードを編集', (content) =>
+      applyUpdateCard(content, id, change),
+    ),
     readonlyInput: true,
   };
 }
 
+export function applyRemoveCard(content: CardDocument, id: string): CardDocument {
+  const index = indexOfCard(content, id);
+  return { ...content, cards: content.cards.filter((_, current) => current !== index) };
+}
+
 export function removeCard(id: string): EditorCommand<CardDocument> {
   return {
-    ...command<CardDocument>('cards.remove', 'カードを削除', (content) => {
-      const index = indexOfCard(content, id);
-      return { ...content, cards: content.cards.filter((_, current) => current !== index) };
-    }),
+    ...command<CardDocument>('cards.remove', 'カードを削除', (content) =>
+      applyRemoveCard(content, id),
+    ),
     readonlyInput: true,
   };
 }

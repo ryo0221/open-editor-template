@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const vendor = path.join(root, 'vendor/ep');
-const pin = 'c5dcc2b70a6e8fc2de1c77e02d9f9855037803dd';
+const pin = 'ab9b748563e1abc260fb9015bcdab460de28f987';
 const repository = 'ryo0221/open-editor-platform';
 const lock = JSON.parse(await readFile(path.join(vendor, 'provenance.json'), 'utf8'));
 if (
@@ -137,6 +137,10 @@ for (const entry of lock.packages) {
   }
   const dependencies = {};
   for (const dependency of Object.keys(original.dependencies ?? {})) {
+    // The template retains the browser/runtime package entries. The Node-only
+    // authority and its QuickJS worker are distributed by the reference Host.
+    if (entry.directory === 'extension-runtime' &&
+        ['@editor-platform/collaboration-core','quickjs-emscripten'].includes(dependency)) continue;
     const directory = packageNames.get(dependency);
     if (!directory) throw new Error('Non-vendored SDK dependency: ' + dependency);
     dependencies[dependency] = 'file:../' + directory;
@@ -158,7 +162,7 @@ for (const entry of lock.packages) {
     ...(Object.keys(dependencies).length ? { dependencies } : {}),
     openEditorTemplateVendor: {
       sourceCommit: pin,
-      packagingModified: '2026-11-16',
+      packagingModified: '2026-11-24',
       originalManifest: '../../upstream-manifests/' + entry.directory + '.json',
     },
   };
@@ -178,7 +182,7 @@ for (const entry of lock.packages) {
         'Source in src/ is copied byte for byte from the public commit above. The unmodified',
         'GNU AGPLv3 text is in LICENSE. The upstream release declares AGPL-3.0-only.',
         '',
-        'Packaging modifications by Open Editor Template on 2026-11-16: package.json exposes',
+        'Packaging modifications by Open Editor Template on 2026-11-24: package.json exposes',
         'only the reviewed public entrypoints, replaces wildcard dependencies with sibling',
         'file dependencies, removes development dependencies, and adds license/provenance',
         'metadata. No upstream implementation was changed.',

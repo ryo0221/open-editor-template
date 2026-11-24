@@ -16,7 +16,9 @@
     "build:extension": "node scripts/build-extension.mjs",
     "build": "npm run check && vite build",
     "preview": "vite preview",
-    "verify:package": "node scripts/verify-package.mjs"
+    "verify:package": "node scripts/verify-package.mjs",
+    "build:shared": "node scripts/build-shared.mjs",
+    "test:shared": "npm run build:shared && playwright test -c playwright.shared.config.ts"
   },
   "dependencies": {
     "@editor-platform/artifact-core": "file:vendor/ep/packages/artifact-core",

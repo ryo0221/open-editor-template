@@ -5,6 +5,8 @@ import {
   type ArtifactVersionRef,
   type ProposalReads,
 } from '@editor-platform/artifact-core';
+import { keepHighest, keepHighestProblems } from './keep-highest';
+export * from './keep-highest';
 export * from './text';
 export * from './japanese-lines';
 export * from './vertical-text';
@@ -130,16 +132,42 @@ export function transaction<T>(
 }
 /** Local-only snapshot history. Never ingest remote edits through this session. */
 export class EditorSession<T> {
-  private past: { content: T; proposals: readonly string[] }[] = [];
-  private future: { content: T; proposals: readonly string[] }[] = [];
+  private past: { content: T; proposals: readonly string[]; marks: readonly string[] }[] = [];
+  private future: { content: T; proposals: readonly string[]; marks: readonly string[] }[] = [];
   private proposals: readonly string[] = [];
+  private markList: readonly string[] = [];
+  // Method syntax keeps EditorSession<T> assignable as before (parameters stay bivariant)
+  private marksOf?: { of(before: T, after: T): readonly string[] };
   private readonly sessionId = newId('session');
   private sequence = 0;
   private mergeKey: string | undefined;
   private validatingHistory = false;
   private value: T;
-  constructor(content: T) {
+  private readonly keep: readonly string[];
+  /**
+   * `keepHighest`: places (JSON Pointers) whose numbers Undo/Redo never lower, such as the
+   * highest issued ID number. See `keepHighest` for the exact rule. Invalid lists throw.
+   */
+  /**
+   * `marks`: a Host's session-only marks for each edit (for example which item reference a person
+   * chose), from the content before and after it. They form an ancestry that Undo and Redo restore
+   * exactly, like proposal transactions, and are never written to content.
+   */
+  constructor(
+    content: T,
+    options: {
+      keepHighest?: readonly string[];
+      marks?: (before: T, after: T) => readonly string[];
+    } = {},
+  ) {
     this.value = clone(content);
+    const marks = options.marks;
+    this.marksOf = marks && { of: marks };
+    if (options.keepHighest !== undefined) {
+      const problems = keepHighestProblems(options.keepHighest);
+      if (problems.length) throw new Error(problems[0]);
+    }
+    this.keep = Object.freeze([...(options.keepHighest ?? [])]);
   }
   /** Caller-owned snapshot; mutating it never changes this session or its history. */
   get content(): T {
@@ -151,6 +179,19 @@ export class EditorSession<T> {
   /** Session-only proposal transaction ancestry, restored by the same native Undo/Redo. */
   get proposalTransactions(): readonly string[] {
     return [...this.proposals];
+  }
+  /**
+   * Sets (or clears) how later edits are marked, as the `marks` option does. A Host that learns
+   * what to mark only after opening the session (for example when a Surface first shows item
+   * references) sets it then; edits before carry no marks.
+   */
+  trackMarks(marks: ((before: T, after: T) => readonly string[]) | undefined) {
+    this.assertMutationAvailable();
+    this.marksOf = marks && { of: marks };
+  }
+  /** Session-only marks of the edits that led to the current content (oldest first). */
+  get marks(): readonly string[] {
+    return [...this.markList];
   }
   private assertMutationAvailable() {
     if (this.validatingHistory) throw new Error('HistoryValidationReentrancy');
@@ -208,11 +249,13 @@ export class EditorSession<T> {
     const next = cmd.apply(cmd.readonlyInput ? deepFreeze(this.value) : clone(this.value));
     // Freeze before updating history, so a failed command cannot partially commit.
     const value = deepFreeze(cmd.readonlyInput ? next : clone(next));
+    const marks = this.marksOf ? [...this.marksOf.of(this.value, value)] : [];
     if (!cmd.context?.mergeKey || cmd.context.mergeKey !== this.mergeKey)
-      this.past.push({ content: this.value, proposals: this.proposals });
+      this.past.push({ content: this.value, proposals: this.proposals, marks: this.markList });
     this.mergeKey = cmd.context?.mergeKey;
     if (this.past.length > 100) this.past.shift();
     this.value = value;
+    if (marks.length) this.markList = [...this.markList, ...marks];
     if (cmd.context?.origin === 'proposal' && cmd.context.transactionId)
       this.proposals = [...this.proposals, cmd.context.transactionId];
     this.future = [];
@@ -224,7 +267,19 @@ export class EditorSession<T> {
    * it has already checked. */
   peekHistory(direction: 'undo' | 'redo'): T | undefined {
     const source = direction === 'undo' ? this.past : this.future;
-    return source.length ? deepFreeze(source[source.length - 1].content) : undefined;
+    return source.length ? this.candidateOf(source[source.length - 1].content) : undefined;
+  }
+  private kept?: { entry: T; current: T; candidate: T };
+  /** The content Undo/Redo would commit for a history entry: the entry with the declared
+   * places raised to the current values. Stable identity while entry and current stay the same;
+   * the entry itself when nothing is raised. */
+  private candidateOf(entry: T): T {
+    if (!this.keep.length) return deepFreeze(entry);
+    const k = this.kept;
+    if (k && k.entry === entry && k.current === this.value) return k.candidate;
+    const candidate = deepFreeze(keepHighest(entry, this.value, this.keep));
+    this.kept = { entry, current: this.value, candidate };
+    return candidate;
   }
   /** Optional synchronous pre-commit validation; throws leave all history state untouched. */
   undo(validateCandidate?: (candidate: T) => void) {
@@ -250,17 +305,20 @@ export class EditorSession<T> {
     this.assertMutationAvailable();
     const source = direction === 'undo' ? this.past : this.future;
     const destination = direction === 'undo' ? this.future : this.past;
-    const candidate = source.length ? source[source.length - 1].content : this.value;
+    const entry = source.length ? source[source.length - 1].content : this.value;
+    // Declared places keep the larger of the current and the restored value (one history step).
+    const candidate = source.length && this.keep.length ? this.candidateOf(entry) : entry;
     if (source.length) this.validateHistory(candidate, validateCandidate);
     // Own/freeze the result before changing history. Callers of the legacy
     // methods still receive independent mutable copies.
     const result = immutableView ? deepFreeze(candidate) : clone(candidate);
     this.breakHistoryGroup();
     if (source.length) {
-      destination.push({ content: this.value, proposals: this.proposals });
+      destination.push({ content: this.value, proposals: this.proposals, marks: this.markList });
       const restored = source.pop()!;
-      this.value = restored.content;
+      this.value = candidate;
       this.proposals = restored.proposals;
+      this.markList = restored.marks;
       this.sequence++;
     }
     return result;
