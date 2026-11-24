@@ -3,7 +3,7 @@ Open Editor Template
 This development starter is distributed under AGPL-3.0-only.
 It includes an unchanged, scoped source snapshot of Open Editor Platform:
 https://github.com/ryo0221/open-editor-platform
-Source commit: bbc105e1ddc0af723302424c92be38208a636423
+Source commit: 297d261486bff1e7cb3831df3207303cacdd46c0
 
 The corresponding EP sources, upstream manifests, licensing information and
 file hashes are included under vendor/ep. The selection and package metadata

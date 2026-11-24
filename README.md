@@ -138,7 +138,7 @@ npm run test:e2e
 このテンプレートは次の公開ソースを固定しています。
 
 - 公開リポジトリ：`ryo0221/open-editor-platform`
-- commit：`bbc105e1ddc0af723302424c92be38208a636423`
+- commit：`297d261486bff1e7cb3831df3207303cacdd46c0`
 - root契約：`1.0.0-draft.1`
 - 操作提案のadd-on：`operations@0-draft`
 - 最初の中身を作るadd-on：`create@0-draft`（カードの無い文書を返す。Hostがまだ無い成果物を作るときに使う）

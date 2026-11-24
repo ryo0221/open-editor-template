@@ -22,7 +22,7 @@
     "@editor-platform/editor-core": "file:../editor-core"
   },
   "openEditorTemplateVendor": {
-    "sourceCommit": "bbc105e1ddc0af723302424c92be38208a636423",
+    "sourceCommit": "297d261486bff1e7cb3831df3207303cacdd46c0",
     "packagingModified": "2026-11-24",
     "originalManifest": "../../upstream-manifests/extension-contract.json"
   }

@@ -148,6 +148,12 @@ function surface(
       },
       { once: true },
     );
+    const setSubmitting = (pending: boolean) => {
+      for (const control of [title, description, color, submit, cancel]) control.disabled = pending;
+    };
+    dialog.addEventListener('cancel', (event) => {
+      if (submit.disabled) event.preventDefault();
+    });
     form.onsubmit = async (event) => {
       event.preventDefault();
       try {
@@ -171,8 +177,7 @@ function surface(
         if ('local' in mode) {
           mode.local.execute(card ? updateCard(card.id, value) : addCard({ id: newId, ...value }));
         } else {
-          submit.disabled = true;
-          cancel.disabled = true;
+          setSubmitting(true);
           const patch = card
             ? Object.fromEntries(
                 Object.entries(value).filter(([key, v]) => v !== card[key as keyof Card]),
@@ -191,8 +196,7 @@ function surface(
       } catch (error) {
         errorMessage.textContent =
           error instanceof Error ? error.message : '入力を確認してください。';
-        submit.disabled = false;
-        cancel.disabled = false;
+        setSubmitting(false);
       }
     };
     // A modal keeps the example's explicit apply/cancel inputs separate from Host actions.
